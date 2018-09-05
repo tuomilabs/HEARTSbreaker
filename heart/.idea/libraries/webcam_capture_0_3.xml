@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="webcam-capture-0.3">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../libs/webcam-capture-0.3.10-dist" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/../../libs/webcam-capture-0.3.10-dist/docs/javadoc" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../libs/webcam-capture-0.3.10-dist/examples" />
+      <root url="file://$PROJECT_DIR$/../../libs/webcam-capture-0.3.10-dist/src" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../../libs/webcam-capture-0.3.10-dist" recursive="false" />
+  </library>
+</component>

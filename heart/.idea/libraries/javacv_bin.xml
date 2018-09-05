@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="javacv-bin">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../libs/javacv-bin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../libs/javacv-bin/samples" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../../libs/javacv-bin" recursive="false" />
+  </library>
+</component>
