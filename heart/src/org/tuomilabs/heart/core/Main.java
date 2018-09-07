@@ -12,11 +12,11 @@ public class Main {
     }
 
     private void run() throws IOException {
-        IPWebcamViewer viewer = new IPWebcamViewer(1, "192.168.77.4", 25522);
+        IPWebcamViewer viewer = new IPWebcamViewer(1, "192.168.1.40", 25522);
 
         viewer.initialize();
 
         viewer.grabFrame();
-        viewer.saveFrame(1);
+        viewer.saveFrame((int) (Math.random() * 100));
     }
 }
