@@ -1,16 +1,37 @@
 package org.tuomilabs.heart.heart;
 
-import java.util.Comparator;
-
 public class Card {
     private int value;
-    private int suit;
-    private int worth;
+    private char suit;
 
-    public Card(int value, int suit, int worth) {
-        this.value = value;
-        this.suit = suit;
-        this.worth = worth;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Card card = (Card) o;
+
+        if (value != card.value) return false;
+        return suit == card.suit;
     }
 
+    @Override
+    public int hashCode() {
+        int result = value;
+        result = 31 * result + (int) suit;
+        return result;
+    }
+
+    public Card(int value, char suit) {
+        this.value = value;
+        this.suit = suit;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public char getSuit() {
+        return suit;
+    }
 }
