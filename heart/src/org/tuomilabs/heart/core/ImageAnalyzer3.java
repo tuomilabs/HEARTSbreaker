@@ -1,35 +1,20 @@
 package org.tuomilabs.heart.core;
 
-import boofcv.abst.feature.detect.line.DetectLineHoughPolar;
-import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
 import boofcv.alg.feature.detect.edge.CannyEdge;
 import boofcv.alg.feature.detect.edge.EdgeContour;
-import boofcv.alg.feature.detect.edge.EdgeSegment;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.GThresholdImageOps;
-import boofcv.alg.filter.binary.ThresholdImageOps;
-import boofcv.alg.misc.ImageStatistics;
-import boofcv.alg.shapes.ShapeFittingOps;
 import boofcv.factory.feature.detect.edge.FactoryEdgeDetectors;
-import boofcv.factory.feature.detect.line.ConfigHoughPolar;
-import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
 import boofcv.gui.ListDisplayPanel;
 import boofcv.gui.binary.VisualizeBinaryData;
-import boofcv.gui.feature.ImageLinePanel;
-import boofcv.gui.feature.VisualizeShapes;
 import boofcv.gui.image.ShowImages;
-import boofcv.io.UtilIO;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.ConnectRule;
-import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.GrayS16;
 import boofcv.struct.image.GrayU8;
-import boofcv.struct.image.ImageGray;
 import com.jhlabs.image.PosterizeFilter;
-import georegression.struct.line.LineParametric2D_F32;
-import georegression.struct.line.LineSegment2D_F32;
 import georegression.struct.point.Point2D_I32;
 
 import javax.imageio.ImageIO;
@@ -37,389 +22,289 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ImageAnalyzer3 {
-    // Display multiple images in the same window
-    static ListDisplayPanel gui = new ListDisplayPanel();
-
-    static int iterations = 1;
-    // Used to bias it towards more or fewer sides. larger number = fewer sides
-    static double cornerPenalty = 0.9;
-    // The fewest number of pixels a side can have
-    static int minSide = 6000;
-
-    // adjusts edge threshold for identifying pixels belonging to a line
-    private static final float edgeThreshold = 50;
-    // adjust the maximum number of found lines in the image
-    private static final int maxLines = 20;
-
-    private static ListDisplayPanel listPanel = new ListDisplayPanel();
+    // Create a DisplayPanel to show many images in one window
+    private static ListDisplayPanel gui = new ListDisplayPanel();
 
     /**
-     * Detects lines inside the image using different types of Hough detectors
+     * Crops an image.
      *
-     * @param image     Input image.
-     * @param imageType Type of image processed by line detector.
-     * @param derivType Type of image derivative.
+     * @param src  - the source image
+     * @param rect - a rectangle, defining the region to crop
+     * @return - the cropped image
      */
-    public static <T extends ImageGray<T>, D extends ImageGray<D>>
-    void detectLines(BufferedImage image,
-                     Class<T> imageType,
-                     Class<D> derivType) {
-        // convert the line into a single band image
-        T input = ConvertBufferedImage.convertFromSingle(image, null, imageType);
-
-        // Comment/uncomment to try a different type of line detector
-        DetectLineHoughPolar<T, D> detector = FactoryDetectLineAlgs.houghPolar(
-                new ConfigHoughPolar(30, 30, 2, Math.PI / 180, edgeThreshold, maxLines), imageType, derivType);
-//		DetectLineHoughFoot<T,D> detector = FactoryDetectLineAlgs.houghFoot(
-//				new ConfigHoughFoot(3, 8, 5, edgeThreshold,maxLines), imageType, derivType);
-//		DetectLineHoughFootSubimage<T,D> detector = FactoryDetectLineAlgs.houghFootSub(
-//				new ConfigHoughFootSubimage(3, 8, 5, edgeThreshold,maxLines, 2, 2), imageType, derivType);
-
-        List<LineParametric2D_F32> found = detector.detect(input);
-
-        // display the results
-        ImageLinePanel gui = new ImageLinePanel();
-        gui.setBackground(image);
-        gui.setLines(found);
-        gui.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
-
-        listPanel.addItem(gui, "Found Lines");
-    }
-
-    /**
-     * Detects segments inside the image
-     *
-     * @param image     Input image.
-     * @param imageType Type of image processed by line detector.
-     * @param derivType Type of image derivative.
-     */
-    public static <T extends ImageGray<T>, D extends ImageGray<D>>
-    void detectLineSegments(BufferedImage image,
-                            Class<T> imageType,
-                            Class<D> derivType) {
-        // convert the line into a single band image
-        T input = ConvertBufferedImage.convertFromSingle(image, null, imageType);
-
-        // Comment/uncomment to try a different type of line detector
-        DetectLineSegmentsGridRansac<T, D> detector = FactoryDetectLineAlgs.lineRansac(100, 100, 2.36, true, imageType, derivType);
-
-        List<LineSegment2D_F32> found = detector.detect(input);
-
-        // display the results
-        ImageLinePanel gui = new ImageLinePanel();
-        gui.setBackground(image);
-        gui.setLineSegments(found);
-        gui.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
-
-        listPanel.addItem(gui, "Found Line Segments");
-    }
-
     private static BufferedImage cropImage(BufferedImage src, Rectangle rect) {
         return src.getSubimage(rect.x, rect.y, rect.width, rect.height);
     }
 
-    public static void threshold(String imageName) throws IOException {
-        BufferedImage imageAA = ImageIO.read(new File(imageName));
-        imageAA = cropImage(imageAA, new Rectangle(700, 1300, 2500, 1300));
+    /**
+     * Threshold the image, using intermediate posterization.
+     *
+     * @param inputImage - the input image
+     * @return - the thresholded image
+     * @throws IOException
+     */
+    private static BufferedImage threshold(BufferedImage inputImage) throws IOException {
+        // STEP 1: Posterise the image
 
-
-        BufferedImage image = new BufferedImage(imageAA.getWidth(), imageAA.getHeight(), BufferedImage.TYPE_INT_RGB);
-
+        BufferedImage image = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         PosterizeFilter k = new PosterizeFilter();
         k.setNumLevels(2);
-        k.filter(imageAA, image);
+        k.filter(inputImage, image);
 
 
-        for (int i = 0; i < image.getWidth(); i++) {
-            for (int j = 0; j < image.getHeight(); j++) {
-//                System.out.println((new Color(image.getRGB(i, j))).getRed());
-                image.setRGB(i, j, processPixel(image.getRGB(i, j)));
-            }
-        }
-
-        // convert into a usable format
+        // STEP 2: Convert to BoofCV format
         GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
         GrayU8 binary = new GrayU8(input.width, input.height);
 
 
-        // Global Methods
-        GThresholdImageOps.threshold(input, binary, ImageStatistics.mean(input), true);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Global: Mean");
+        // STEP 3: Threshold image
         GThresholdImageOps.threshold(input, binary, GThresholdImageOps.computeOtsu(input, 0, 255), true);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Global: Otsu");
-
-        BufferedImage gaussian = VisualizeBinaryData.renderBinary(binary, false, null);
-
-        GThresholdImageOps.threshold(input, binary, GThresholdImageOps.computeEntropy(input, 0, 255), true);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Global: Entropy");
-
-        // Local method
-        GThresholdImageOps.localSquare(input, binary, 57, 1.0, true, null, null);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Square");
-        GThresholdImageOps.localBlockMinMax(input, binary, 21, 1.0, true, 15);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Block Min-Max");
-//        GThresholdImageOps.blockMean(input, binary, ConfigLength.fixed(21), 1.0, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Block Mean");
-//        GThresholdImageOps.blockOtsu(input, binary, false, ConfigLength.fixed(21), 0.5, 1.0, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Block Otsu");
-        GThresholdImageOps.localGaussian(input, binary, 85, 1.0, true, null, null);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Gaussian");
-
-//        GThresholdImageOps.localSauvola(input, binary, 11, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 11, 0.50f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 11, 0.70f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 11, 0.90f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 5, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 20, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 50, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 30, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 40, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-        GThresholdImageOps.localSauvola(input, binary, 60, 0.15f, true);
-        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 100, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, false, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 300, 0.30f, true);
-//        gui.addImage(VisualizeBinaryData.renderBinary(binary, true, null), "Local: Sauvola");
-//        GThresholdImageOps.localSauvola(input, binary, 60, 0.30f, true);
-
-        // Sauvola is tuned for text image.  Change radius to make it run better in others.
-
-        // Show the image image for reference
-        gui.addImage(ConvertBufferedImage.convertTo(input, null), "Input Image");
-
-        detectLines(gaussian, GrayU8.class, GrayS16.class);
-
-        // line segment detection is still under development and only works for F32 images right now
-        detectLineSegments(gaussian, GrayF32.class, GrayF32.class);
-
-        ShowImages.showWindow(listPanel, "Detected Lines", true);
-
-
-        String fileName = imageName.substring(imageName.lastIndexOf('/') + 1);
-//        ShowImages.showWindow(gui, fileName);
-
-//        BufferedImage gaussian = VisualizeBinaryData.renderBinary(binary, false, null);
-
-
-        gui.addImage(image, "Original");
-
-
-        GrayF32 gaussianGray = new GrayF32(gaussian.getWidth(), gaussian.getHeight());
-        ConvertBufferedImage.convertFrom(gaussian, gaussianGray);
-//
-//
-//        GrayF32 denoised = gaussianGray.createSameShape();
-//
-//        // How many levels in wavelet transform
-//        int numLevels = 10;
-//        // Create the noise removal algorithm
-//        WaveletDenoiseFilter<GrayF32> denoiser =
-//                FactoryImageDenoise.waveletBayes(GrayF32.class, numLevels, 0, 255);
-//
-//        // remove noise from the image
-//        denoiser.process(gaussianGray, denoised);
-//        gui.addImage(ConvertBufferedImage.convertTo(denoised, null), "Denoised");
-
-        fitCannyEdges(gaussianGray);
-        fitCannyBinary(gaussianGray);
-        fitBinaryImage(gaussianGray);
-
-
-        gui.addImage(image, "Cool");
-
-        ShowImages.showWindow(gui, "Polygon from Contour", true);
+        return VisualizeBinaryData.renderBinary(binary, false, null);
     }
 
-    public static int processPixel(int pixel) {
-        int red = (0xff & (pixel >> 16));
-        int green = (0xff & (pixel >> 8));
-        int blue = (0xff & pixel);
-        red = (red - (red % 64));
-        green = (green - (green % 64));
-        blue = (blue - (blue % 64));
-        if (red > 255) red = 255;
-        if (red < 0) red = 0;
-        if (green > 255) green = 255;
-        if (green < 0) green = 0;
-        if (blue > 255) blue = 255;
-        if (blue < 0) blue = 0;
-        pixel = (0xff000000 | red << 16 | green << 8 | blue);
-        return pixel;
-    }
-
-    /**
-     * Fits polygons to found contours around binary blobs.
-     */
-    public static void fitBinaryImage(GrayF32 input) {
-
-        GrayU8 binary = new GrayU8(input.width, input.height);
-        BufferedImage polygon = new BufferedImage(input.width, input.height, BufferedImage.TYPE_INT_RGB);
-
-        // the mean pixel value is often a reasonable threshold when creating a binary image
-        double mean = ImageStatistics.mean(input);
-
-        // create a binary image by thresholding
-        ThresholdImageOps.threshold(input, binary, 100, true);
-
-        // reduce noise with some filtering
-        GrayU8 filtered = BinaryImageOps.erode8(binary, 1, null);
-        filtered = BinaryImageOps.dilate8(filtered, 1, null);
-
-        // Find the contour around the shapes
-        List<Contour> contours = BinaryImageOps.contour(filtered, ConnectRule.EIGHT, null);
-
-        // Fit a polygon to each shape and draw the results
-        Graphics2D g2 = polygon.createGraphics();
-        g2.setStroke(new BasicStroke(2));
-
-        for (Contour c : contours) {
-            // Fit the polygon to the found external contour.  Note loop = true
-            List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external, true, minSide, cornerPenalty, iterations);
-
-            g2.setColor(Color.RED);
-            VisualizeShapes.drawPolygon(vertexes, true, g2);
-
-            // handle internal contours now
-//            g2.setColor(Color.BLUE);
-//            for (List<Point2D_I32> internal : c.internal) {
-//                vertexes = ShapeFittingOps.fitPolygon(internal, true, minSide, cornerPenalty, iterations);
-//                VisualizeShapes.drawPolygon(vertexes, true, g2);
-//            }
-        }
-
-        gui.addImage(polygon, "Binary Blob Contours");
-    }
-
-    /**
-     * Fits a sequence of line-segments into a sequence of points found using the Canny edge detector.  In this case
-     * the points are not connected in a loop. The canny detector produces a more complex tree and the fitted
-     * points can be a bit noisy compared to the others.
-     */
-    public static void fitCannyEdges(GrayF32 input) {
-
-        BufferedImage displayImage = new BufferedImage(input.width, input.height, BufferedImage.TYPE_INT_RGB);
-
-        // Finds edges inside the image
-        CannyEdge<GrayF32, GrayF32> canny =
-                FactoryEdgeDetectors.canny(2, true, true, GrayF32.class, GrayF32.class);
-
-        canny.process(input, 0.1f, 0.3f, null);
-        List<EdgeContour> contours = canny.getContours();
-
-        Graphics2D g2 = displayImage.createGraphics();
-        g2.setStroke(new BasicStroke(2));
-
-        // used to select colors for each line
-        Random rand = new Random(234);
-
-        for (EdgeContour e : contours) {
-            g2.setColor(new Color(rand.nextInt()));
-
-            for (EdgeSegment s : e.segments) {
-                // fit line segments to the point sequence.  Note that loop is false
-                List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(s.points, false, minSide, cornerPenalty, iterations);
-
-                VisualizeShapes.drawPolygon(vertexes, false, g2);
-            }
-        }
-
-        gui.addImage(displayImage, "Canny Trace");
-    }
-
-
-    /**
-     * Detects contours inside the binary image generated by canny.  Only the external contour is relevant. Often
-     * easier to deal with than working with Canny edges directly.
-     */
-    public static void fitCannyBinary(GrayF32 input) {
-
-        BufferedImage displayImage = new BufferedImage(input.width, input.height, BufferedImage.TYPE_INT_RGB);
-        GrayU8 binary = new GrayU8(input.width, input.height);
-
-        // Finds edges inside the image
-        CannyEdge<GrayF32, GrayF32> canny =
-                FactoryEdgeDetectors.canny(2, false, true, GrayF32.class, GrayF32.class);
-
-        canny.process(input, 0.1f, 0.3f, binary);
-
-        List<Contour> contours = BinaryImageOps.contour(binary, ConnectRule.EIGHT, null);
-
-        Graphics2D g2 = displayImage.createGraphics();
-        g2.setStroke(new BasicStroke(2));
-
-        // used to select colors for each line
-        Random rand = new Random(234);
-
-        for (Contour c : contours) {
-            // Only the external contours are relevant.
-            List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external, true, minSide, cornerPenalty, iterations);
-
-            g2.setColor(new Color(rand.nextInt()));
-            VisualizeShapes.drawPolygon(vertexes, true, g2);
-        }
-
-        gui.addImage(displayImage, "Canny Contour");
-    }
-
-
-    private static int getLongDiagonal(List<PointIndex_I32> vertexes) {
-        int[] bounds = getBounds(vertexes);
-
-        double x1 = (double) bounds[0];
-        double y1 = (double) bounds[1];
-        double x2 = (double) bounds[2];
-        double y2 = (double) bounds[3];
-
-        return (int) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    }
-
-    private static int[] getBounds(List<PointIndex_I32> vertices) {
-        int minX = 1000000;
-        int minY = 1000000; // Hi people with higher resolution
-        int maxX = 0;
-        int maxY = 0;
-
-        for (Point2D_I32 vertex : vertices) {
-            int currentX = vertex.x;
-            int currentY = vertex.y;
-
-            if (currentX > maxX) {
-                maxX = currentX;
-            }
-            if (currentX < minX) {
-                minX = currentX;
-            }
-            if (currentY > maxY) {
-                maxY = currentY;
-            }
-            if (currentY < minY) {
-                minY = currentY;
-            }
-        }
-
-        return new int[]{minX, minY, maxX, maxY};
-    }
 
     public static void main(String[] args) throws IOException {
-        // example in which global thresholding works best
-        threshold(UtilIO.pathExample("C:\\development\\HEARTSbreaker\\heart\\saved_frame_82.jpg"));
-        // example in which adaptive/local thresholding works best
-//        threshold(UtilIO.pathExample("C:\\development\\HEARTSbreaker\\heart\\saved_frame_82.jpg"));
-        // hand written text with non-uniform stained background
-//        threshold(UtilIO.pathExample("C:\\development\\HEARTSbreaker\\heart\\saved_frame_82.jpg"));
+        BufferedImage original = ImageIO.read(new File("C:\\development\\HEARTSbreaker\\heart\\saved_frame_82.jpg"));
+        BufferedImage croppedImage = cropImage(original, new Rectangle(700, 1300, 2500, 1300));
+        BufferedImage thresholded = threshold(croppedImage);
+
+        gui.addImage(original, "Original");
+        gui.addImage(croppedImage, "Cropped");
+        gui.addImage(thresholded, "Thresholded");
+        ShowImages.showWindow(gui, "Cool Stuff", true);
+
+
+        GrayU8 gray = ConvertBufferedImage.convertFrom(thresholded, (GrayU8) null);
+        GrayU8 edgeImage = gray.createSameShape();
+
+        // Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
+        // It has also been configured to save the trace as a graph.  This is the graph created while performing
+        // hysteresis thresholding.
+        CannyEdge<GrayU8, GrayS16> canny = FactoryEdgeDetectors.canny(2, true, true, GrayU8.class, GrayS16.class);
+
+        // The edge image is actually an optional parameter.  If you don't need it just pass in null
+        canny.process(gray, 0.1f, 0.3f, edgeImage);
+
+        // First get the contour created by canny
+        List<EdgeContour> edgeContours = canny.getContours();
+        // The 'edgeContours' is a tree graph that can be difficult to process.  An alternative is to extract
+        // the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
+        // Note that you are only interested in external contours.
+        List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
+        List<Contour> realContours = new ArrayList<>();
+
+        for (Contour c : contours) {
+//            System.out.println(c.external.size());
+
+            if (c.external.size() > 1800 && c.external.size() < 1900) {
+                System.out.println(c.external.size());
+                realContours.add(c);
+            }
+        }
+
+        System.out.println(realContours.size());
+
+
+        for (Contour r : realContours) {
+            System.out.println("Getting corners!");
+            List<int[]> corners = getCorners(r, 100);
+
+            System.out.println("Corners: ");
+            for (int[] corner : corners) {
+                System.out.print(Arrays.toString(corner));
+            }
+
+            System.out.println();
+        }
+
+        // display the results
+        BufferedImage visualBinary = VisualizeBinaryData.renderBinary(edgeImage, false, null);
+        BufferedImage visualCannyContour = VisualizeBinaryData.renderContours(edgeContours, null,
+                gray.width, gray.height, null);
+        BufferedImage visualEdgeContour = new BufferedImage(gray.width, gray.height, BufferedImage.TYPE_INT_RGB);
+        VisualizeBinaryData.render(realContours, Color.RED, visualEdgeContour);
+
+        ListDisplayPanel panel = new ListDisplayPanel();
+        panel.addImage(visualBinary, "Binary Edges from Canny");
+        panel.addImage(visualCannyContour, "Canny Trace Graph");
+        panel.addImage(visualEdgeContour, "Contour from Canny Binary");
+        ShowImages.showWindow(panel, "Canny Edge", true);
+    }
+
+    private static List<int[]> getCorners(Contour contour, int tolerance) {
+        List<int[]> nePoints = new ArrayList<>();
+        List<int[]> sePoints = new ArrayList<>();
+        List<int[]> swPoints = new ArrayList<>();
+        List<int[]> nwPoints = new ArrayList<>();
+
+
+        int direction = getStartingDirection(contour);
+        int errors = 0;
+        int changes = 0;
+
+        System.out.println("Starting direction: " + direction);
+
+        int startIndex = getIndexOfLeftmostPoint(contour);
+        Point2D_I32 prev = contour.external.get(startIndex);
+        for (int i = startIndex + 1; i < contour.external.size() + startIndex; i++) {
+//            if (changes > 10000) {
+//                return new ArrayList<>();
+//            }
+
+
+            // If the number of errors exceeded the tolerance, we probably changed direction.
+            // Update direction and reset number of errors to zero.
+            if (errors > tolerance) {
+//                System.out.println("Direction changed.");
+                direction++;
+                direction %= 4;
+                changes++;
+                errors = 0;
+            }
+
+            Point2D_I32 p = contour.external.get(i % contour.external.size());
+
+
+//            System.out.println("Current point: " + p + "; error: " + errors);
+            System.out.println(p.getX() + ", " + p.getY());
+
+
+            switch (direction) {
+                case 0:
+                    if (p.getX() > prev.getX() && p.getY() > prev.getY()) {
+                        nePoints.add(new int[]{p.getX(), p.getY()});
+                    } else {
+                        errors++;
+                    }
+                    break;
+                case 1:
+                    if (p.getX() > prev.getX() && p.getY() < prev.getY()) {
+                        sePoints.add(new int[]{p.getX(), p.getY()});
+                    } else {
+                        errors++;
+                    }
+                    break;
+                case 2:
+                    if (p.getX() < prev.getX() && p.getY() < prev.getY()) {
+                        nwPoints.add(new int[]{p.getX(), p.getY()});
+                    } else {
+                        errors++;
+                    }
+                    break;
+                case 3:
+                    if (p.getX() < prev.getX() && p.getY() > prev.getY()) {
+                        swPoints.add(new int[]{p.getX(), p.getY()});
+                    } else {
+                        errors++;
+                    }
+                    break;
+            }
+        }
+
+
+        if (changes < 4) {
+            System.err.println("Only " + changes + " direction changes!");
+            return new ArrayList<>();
+        } else if (changes > 4) {
+            System.err.println("Too many:  " + changes + " direction changes!");
+            return new ArrayList<>();
+
+        }
+
+
+        List<int[]> corners = new ArrayList<>();
+        corners.add(nePoints.get(nePoints.size() - 1));
+        corners.add(sePoints.get(sePoints.size() - 1));
+        corners.add(swPoints.get(swPoints.size() - 1));
+        corners.add(nwPoints.get(nwPoints.size() - 1));
+
+        return corners;
+    }
+
+    private static int getStartingDirection(Contour contour) {
+        int samples = 15;
+
+        int firstIndex = getIndexOfLeftmostPoint(contour);
+        Point2D_I32 firstPoint = contour.external.get(firstIndex);
+
+        List<Integer> directions = new ArrayList<>();
+
+        // Generate some random next points at an index distance from 10 to 100, and get which direction they're in
+        for (int i = 0; i < samples; i++) {
+            Point2D_I32 nextPoint = contour.external
+                    .get(i + ThreadLocalRandom.current().nextInt(10, 100 + 1));
+
+            directions.add(getDirection(new int[]{firstPoint.getX(), firstPoint.getY()}, new int[]{nextPoint.getX(), nextPoint.getY()}));
+        }
+
+        return mode(directions);
+    }
+
+    /**
+     * Gets the mode of a list of numbers. Based on https://stackoverflow.com/a/4191729
+     * @param numbers - the list of numbers
+     * @return - the mode
+     */
+    private static int mode(final List<Integer> numbers) {
+        final Map<Integer, Long> countFrequencies = numbers.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        final long maxFrequency = countFrequencies.values().stream()
+                .mapToLong(count -> count)
+                .max().orElse(-1);
+
+        return countFrequencies.entrySet().stream()
+                .filter(tuple -> tuple.getValue() == maxFrequency)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList())
+                .get(0);
+    }
+
+    // Gets the direction from p1 to p2.
+    private static int getDirection(int[] p1, int[] p2) {
+        if (p2[0] > p1[0] && p2[1] > p1[1]) {
+            return 0;
+        } else if (p2[0] < p1[0] && p2[1] < p1[1]) {
+            return 1;
+        } else if (p2[0] > p1[0] && p2[1] < p1[1]) {
+            return 2;
+        } else if (p2[0] < p1[0] && p2[1] > p1[1]) {
+            return 3;
+        }
+
+        return -1;
+    }
+
+    private static int getIndexOfLeftmostPoint(Contour contour) {
+//        try {
+//            System.setOut(new PrintStream(new File("out.txt")));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        int lowestX = contour.external.get(0).getX();
+        int index = 0;
+
+        for (int i = 1; i < contour.external.size(); i++) {
+            Point2D_I32 p = contour.external.get(i);
+
+            if (p.getX() < lowestX) {
+                lowestX = p.getX();
+                index = i;
+            }
+        }
+
+        return index;
     }
 }

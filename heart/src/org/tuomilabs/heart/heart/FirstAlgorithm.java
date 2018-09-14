@@ -91,13 +91,17 @@ public class FirstAlgorithm implements Algorithm {
         for (Card c : myCards) {
             double valueRatio = getValueRatio(c, cardsPlayed, myCards);
 
-            
+
         }
+
+        return null;
     }
 
 
     private List<Integer> calculateRelativeRisk(List<Card> myCards, List<Card> cardsPlayed, List<Card> currentlyOnTable, boolean[][] suitsEmpty) {
         // You implement this
+
+        return null;
     }
 
 
