@@ -5,6 +5,11 @@ public class Card {
     private final char suit;
 
     @Override
+    public String toString() {
+        return "" + this.value + "" + (this.suit == 's' ? "♠" : this.suit == 'c' ? "♣" : this.suit == 'd' ? "♦" : "♥") + "";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

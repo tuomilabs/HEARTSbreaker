@@ -31,7 +31,7 @@ public class Game {
 
     public static boolean isStartingPlayer(List<Card> playerCards) {
         for (Card c : playerCards) {
-            if (c.equals(Cards.TWO_OF_SPADES)) {
+            if (c.equals(Cards.TWO_OF_CLUBS)) {
                 return true;
             }
         }

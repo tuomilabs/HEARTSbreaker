@@ -9,7 +9,7 @@ public class DeckFactory {
     public static List<Card> generateDeck() {
         List<Card> deck = new ArrayList<>();
 
-        for (int i = 0; i < 13; i++) {
+        for (int i = 2; i < 15; i++) {
             for (char c : SUITS) {
                 deck.add(new Card(i, c));
             }

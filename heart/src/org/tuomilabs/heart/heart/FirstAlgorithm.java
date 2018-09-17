@@ -12,11 +12,23 @@ public class FirstAlgorithm implements Algorithm {
     private int id;
     public double pointsInPlay, CpointsInPlay, Cpoints, POOS, CPOOS, cardsPlayedOfSuit, CcardsPlayedOfSuit, VR, CVR, playingC, startingC;
 
-    
-    public FirstAlgorithm(List<Card> dealtCards, List<Double> inputs) {
-    	
+
+    public FirstAlgorithm() {
         cardsPlayed = new ArrayList<>();
-        
+
+        suitsEmpty = new boolean[4][4];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                suitsEmpty[i][j] = false;
+            }
+        }
+    }
+
+    public FirstAlgorithm(List<Card> dealtCards, List<Double> inputs) {
+
+        cardsPlayed = new ArrayList<>();
+
         myCards = new ArrayList<>(dealtCards);
 
         suitsEmpty = new boolean[4][4];
@@ -26,8 +38,8 @@ public class FirstAlgorithm implements Algorithm {
                 suitsEmpty[i][j] = false;
             }
         }
-        
-        pointsInPlay =  inputs.get(0);
+
+        pointsInPlay = inputs.get(0);
         CpointsInPlay = inputs.get(1);
         Cpoints = inputs.get(2);
         POOS = inputs.get(3);
@@ -38,11 +50,10 @@ public class FirstAlgorithm implements Algorithm {
         CVR = inputs.get(8);
         playingC = inputs.get(9);
         startingC = inputs.get(10);
-        
-    }
-    
 
-    
+    }
+
+
     private List<Card> getAllRemainingCardsInSuitThatOtherPlayersPossess(List<Card> cardsPlayed, List<Card> myCards) {
         List<Card> knownCardsInSuit = new ArrayList<>();
         List<Card> remainingCards = DeckFactory.generateDeck();
@@ -60,7 +71,7 @@ public class FirstAlgorithm implements Algorithm {
 
         int opponentsCardsBelowMine = getCardsBelow(card, remainingCards);
 
-        double stepSize = 1 / (double)remainingCards.size();
+        double stepSize = 1 / (double) remainingCards.size();
         double valueRatio = (opponentsCardsBelowMine * stepSize);
 
         /*
@@ -123,121 +134,152 @@ public class FirstAlgorithm implements Algorithm {
 
         return null;
     }
-    
-    private int playcard_havesuit(List<Card> currentlyOnTable){
-    	int cardplayed = 0;
-    	int maxCard = maxCardOfSuit(currentlyOnTable);
-    	for(int i = 0; i < myCards.size(); i++){
-    		if(getValueHaveSuit(myCards.get(i),maxCard) > getValueHaveSuit(myCards.get(cardplayed),maxCard) && getValueHaveSuit(myCards.get(i),maxCard) < playingC){
-    			cardplayed = i;
-    		}
-    	}
-    	
-    	
-    	return cardplayed;
+
+    private int playcard_havesuit(List<Card> currentlyOnTable) {
+        int cardplayed = 0;
+        int maxCard = maxCardOfSuit(currentlyOnTable);
+        for (int i = 0; i < myCards.size(); i++) {
+            if (myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
+                cardplayed = i;
+            }
+        }
+
+
+        return cardplayed;
     }
-    
-    private int playcard_donthavesuit(List<Card> currentlyOnTable){
-    	int cardplayed = 0;
-    	int maxCard = -1;
-    	for(int i = 0; i < myCards.size(); i++){
-    		if(getValueHaveSuit(myCards.get(i),maxCard) > getValueHaveSuit(myCards.get(cardplayed),maxCard)){
-    			cardplayed = i;
-    		}
-    	}
-    	
-    	
-    	return cardplayed;
+
+    private int playcard_donthavesuit() {
+        int cardplayed = 0;
+        int maxCard = -1;
+        for (int i = 0; i < myCards.size(); i++) {
+            if (getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard)) {
+                cardplayed = i;
+            }
+        }
+
+
+        return cardplayed;
     }
-    
-    private int playcard_starting(List<Card> currentlyOnTable){
-    	int cardplayed = 0;
-    	int maxCard = -1;
-    	for(int i = 0; i < myCards.size(); i++){
-    		if(getValueHaveSuit(myCards.get(i),maxCard) > getValueHaveSuit(myCards.get(cardplayed),maxCard) && getValueHaveSuit(myCards.get(i),maxCard) < startingC){
-    			cardplayed = i;
-    		}
-    	}
-    	
-    	
-    	return cardplayed;
+
+    private int playcard_starting() {
+        int cardplayed = 0;
+        int maxCard = -1;
+        for (int s = 0; s < 4; s++) {
+            for (Card c : cardsPlayed) {
+                if (c.getSuit() == s) cardsPlayedOfSuit++;
+            }
+
+            for (int i = id + 1; i < starting; i++, i %= 4) {
+                if (suitsEmpty[i][getSuitNumber(s)]) POOS++;
+            }
+            for (int i = 0; i < myCards.size(); i++) {
+                if (myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
+                    cardplayed = i;
+                }
+            }
+        }
+
+        return cardplayed;
     }
-    
-    private double getValueHaveSuit(Card card, int maxCard){
-    	
-    	if (maxCard == -1) return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit +1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1);
-    	
-    		
-    	else return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit +1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1) * Math.min(1, Math.max(0, card.getValue() - maxCard));
-    	
+
+    private int getSuitNumber(int suitInt) {
+        switch (suitInt) {
+            case (int) 'c':
+                return 0;
+            case (int) 'd':
+                return 1;
+            case (int) 'h':
+                return 2;
+            case (int) 's':
+                return 3;
+            default:
+                return -1;
+        }
     }
-    
-    private boolean havesuit(int suit){
-    	boolean havesuit = false;
-    	for(int i = 0; i < myCards.size(); i++){
-    		if(myCards.get(i).getSuit() == suit) havesuit = true;
-    	}
-    	return havesuit;
+
+    private double getValue(Card card, int maxCard) {
+
+        if (maxCard == -1)
+            return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1);
+
+
+        else
+            return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1) * Math.min(1, Math.max(0, card.getValue() - maxCard));
+
     }
-    
-    private int maxCardOfSuit(List<Card> currentlyOnTable){
-    	for(int i = 0; i < currentlyOnTable.size(); i++){
-    		
-    	}
-    	
-    	return 0;
+
+    private boolean havesuit(int suit) {
+        boolean havesuit = false;
+        for (int i = 0; i < myCards.size(); i++) {
+            if (myCards.get(i).getSuit() == suit) havesuit = true;
+        }
+        return havesuit;
     }
-    
-    
+
+    private int maxCardOfSuit(List<Card> currentlyOnTable) {
+        char suit = currentlyOnTable.get(0).getSuit();
+        int maxValue = currentlyOnTable.get(0).getValue();
+
+        for (Card cardOnTable : currentlyOnTable) {
+            if (cardOnTable.getValue() > maxValue && cardOnTable.getSuit() == suit) {
+                maxValue = cardOnTable.getValue();
+            }
+        }
+
+        return maxValue;
+    }
+
+
     @Override
     public Card playCard(List<Card> currentlyOnTable) {
-    	int startingSuit = currentlyOnTable.get(0).getSuit();
-    	for(Card c: currentlyOnTable){
-    		cardsPlayed.add(c);
-    	}
-    	cardsPlayedOfSuit = 0;
-    	pointsInPlay = 0;
-    	
-    	for(Card c: cardsPlayed){
-    		pointsInPlay += Game.getPointValue(c);
-    		if(c.getSuit() == startingSuit) cardsPlayedOfSuit++;
-    	}
-    
-    	POOS = 0;
-    	for(int i = id + 1; i < starting; i++ , i %= 4){
-    		if(suitsEmpty[i][startingSuit] == true) POOS++;
-    	}
-    	
-    	
-    	if(currentlyOnTable.size() == 0){
-    		return myCards.get(playcard_starting(currentlyOnTable));
-    	}
-    	else{
-    		if(havesuit(currentlyOnTable.get(0).getSuit())) return myCards.get(playcard_havesuit(currentlyOnTable));
-    	   
-    		else return myCards.get(playcard_donthavesuit(currentlyOnTable));
-    	   
-    	}
+        cardsPlayedOfSuit = 0;
+        pointsInPlay = 0;
+        POOS = 0;
+
+        int startingSuit;
+        if (currentlyOnTable.size() > 0) {
+            startingSuit = currentlyOnTable.get(0).getSuit();
+            for (Card c : currentlyOnTable) {
+                cardsPlayed.add(c);
+            }
+
+            for (Card c : cardsPlayed) {
+                pointsInPlay += Game.getPointValue(c);
+                if (c.getSuit() == startingSuit) cardsPlayedOfSuit++;
+            }
+
+            for (int i = id + 1; i < starting; i++, i %= 4) {
+                if (suitsEmpty[i][getSuitNumber(startingSuit)]) POOS++;
+            }
+        }
+
+
+        if (currentlyOnTable.size() == 0) {
+            return myCards.get(playcard_starting());
+        } else {
+            if (havesuit(currentlyOnTable.get(0).getSuit())) return myCards.get(playcard_havesuit(currentlyOnTable));
+
+            else return myCards.get(playcard_donthavesuit());
+
+        }
     }
 
     @Override
     public void getFinalCards(List<Card> finalCards) {
-    	int startingSuit = finalCards.get(0).getSuit();
-    	for(int i = 0; i < 4;i++){
-    		if (finalCards.get(i).getSuit() != startingSuit) suitsEmpty[i][startingSuit] = true;
-    		if(cardsPlayed.contains(finalCards.get(i)) == false) cardsPlayed.add(finalCards.get(i));
-    	}
-    	
-    
-    	
+        int startingSuit = finalCards.get(0).getSuit();
+        for (int i = 0; i < 4; i++) {
+            if (finalCards.get(i).getSuit() != startingSuit) suitsEmpty[i][getSuitNumber(startingSuit)] = true;
+            if (cardsPlayed.contains(finalCards.get(i)) == false) cardsPlayed.add(finalCards.get(i));
+        }
+
+
     }
 
 
+    @Override
+    public void setCoefficients(List<Double> coefficients) {
 
-	@Override
-	public void setCoefficients(List<Double> coefficients) {
-		
-		pointsInPlay =  coefficients.get(0);
+        pointsInPlay = coefficients.get(0);
         CpointsInPlay = coefficients.get(1);
         Cpoints = coefficients.get(2);
         POOS = coefficients.get(3);
@@ -248,41 +290,43 @@ public class FirstAlgorithm implements Algorithm {
         CVR = coefficients.get(8);
         playingC = coefficients.get(9);
         startingC = coefficients.get(10);
-		
-	}
+
+    }
 
 
+    @Override
+    public void dealCards(List<Card> dealtCards) {
 
-	@Override
-	public void dealCards(List<Card> dealtCards) {
-		
-		this.myCards = dealtCards;
-		
-	}
+        this.myCards = dealtCards;
 
+    }
 
 
-	@Override
-	public void getWhoIsStartingNextTrick(int starting) {
-		
-		this.starting = starting;
-		
-	}
+    @Override
+    public void getWhoIsStartingNextTrick(int starting) {
+
+        this.starting = starting;
+
+    }
 
 
+    @Override
+    public List<Card> getCards() {
 
-	@Override
-	public List<Card> getCards() {
-		
-		return myCards;
-	}
-
+        return myCards;
+    }
 
 
-	@Override
-	public void setID(int id) {
-		
-		this.id = id;
-		
-	}
+    @Override
+    public List<Double> getCoefficients() {
+        return Arrays.asList(pointsInPlay, CpointsInPlay, Cpoints, POOS, CPOOS, cardsPlayedOfSuit, CcardsPlayedOfSuit, VR, CVR, playingC, startingC);
+    }
+
+
+    @Override
+    public void setID(int id) {
+
+        this.id = id;
+
+    }
 }

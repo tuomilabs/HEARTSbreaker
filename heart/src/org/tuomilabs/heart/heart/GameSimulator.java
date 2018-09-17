@@ -3,15 +3,33 @@ package org.tuomilabs.heart.heart;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameSimulator {
     private Class algorithmType;
     private List<Algorithm> algorithms;
     Map<Integer, Integer> points;
 
+    private boolean displayGame;
+
     GameSimulator(Class algorithmType) {
         this.algorithmType = algorithmType;
         this.algorithms = new ArrayList<>();
+        displayGame = false;
+
+        try {
+            for (int i = 0; i < 4; i++) {
+                algorithms.add((Algorithm) this.algorithmType.newInstance());
+            }
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    GameSimulator(Class algorithmType, boolean displayGame) {
+        this.algorithmType = algorithmType;
+        this.algorithms = new ArrayList<>();
+        this.displayGame = true;
 
         try {
             for (int i = 0; i < 4; i++) {
@@ -23,6 +41,11 @@ public class GameSimulator {
     }
 
     public void playGame() {
+        for (int i = 0; i < 4; i++) {
+            algorithms.get(i).setCoefficients(randomCoefficients());
+        }
+
+
         Map<Integer, List<Card>> takenCards = new HashMap<>();
         takenCards.put(0, new ArrayList<>());
         takenCards.put(1, new ArrayList<>());
@@ -38,23 +61,45 @@ public class GameSimulator {
         Collections.shuffle(deck);
 
         // Deal the cards and set the player IDs
-        List<List<Card>> eachPlayerCards = ListUtils.partition(deck, 4);
+        List<List<Card>> eachPlayerCards = ListUtils.partition(deck, 13);
 
         for (int i = 0; i < 4; i++) {
             algorithms.get(i).setID(i);
             algorithms.get(i).dealCards(eachPlayerCards.get(i));
+
+            if (displayGame) {
+                System.out.println("Player " + i + " just got the cards: " + eachPlayerCards.get(i) + "");
+            }
         }
 
         int startingPlayer = getStartingPlayer();
+
+        if (displayGame) {
+            System.out.println("The starting player is player " + startingPlayer + ".");
+        }
+
         for (int turn = 0; turn < 13; turn++) {
+            if (displayGame) {
+                System.out.println("Starting turn " + turn + "!");
+            }
+
             List<Card> currentCardsOnTable = new ArrayList<>();
 
+            int cardsPlayed = 0;
             for (int currentPlayer = startingPlayer; currentPlayer < 4; currentPlayer++, currentPlayer %= 4) {
                 // Ask the algorithm to play a card, given the cards currently on the table
                 Card playedCard = algorithms.get(currentPlayer).playCard(currentCardsOnTable);
+                cardsPlayed++;
+
+                System.out.println("Player " + currentPlayer + " just played a " + playedCard + "");
 
                 // Add the played card to the cards on the table
                 currentCardsOnTable.add(playedCard);
+
+                // If four cards have been played, end the trick.
+                if (cardsPlayed == 4) {
+                    break;
+                }
             }
 
             // Send the final cards to each algorithm
@@ -85,6 +130,24 @@ public class GameSimulator {
             currentPoints += Game.calculatePoints(takenCards.get(i));
             points.put(i, currentPoints);
         }
+    }
+
+    private List<Double> randomCoefficients() {
+        List<Double> coefficients = new ArrayList<>();
+
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 200));
+        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 200));
+
+        return coefficients;
     }
 
     private int getStartingPlayer() {
