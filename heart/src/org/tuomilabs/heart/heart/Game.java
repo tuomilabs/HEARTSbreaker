@@ -38,4 +38,24 @@ public class Game {
 
         return false;
     }
+
+    public static int calculatePoints(List<Card> takenCards) {
+        int points = 0;
+
+        for (Card c : takenCards) {
+            points += getPointValue(c);
+        }
+
+        return points;
+    }
+
+    private static int getPointValue(Card c) {
+        if (c.getSuit() == 'h') {
+            return 1;
+        } else if (c.equals(Cards.QUEEN_OF_SPADES)) {
+            return 13;
+        } else {
+            return 0;
+        }
+    }
 }
