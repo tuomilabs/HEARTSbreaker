@@ -7,4 +7,6 @@ public interface Algorithm {
     void dealCards(List<Card> dealtCards);
     Card playCard(List<Card> currentlyOnTable);
     void getFinalCards(List<Card> finalCards);
+    void getIsStartingNextSuit(boolean starting);
+    List<Card> getCards();
 }

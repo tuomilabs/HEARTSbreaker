@@ -1,6 +1,5 @@
 package org.tuomilabs.heart.heart;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.ArrayList;
@@ -39,11 +38,40 @@ public class AlgorithmTrainer {
 
         int startingPlayer = getStartingPlayer();
         for (int turn = 0; turn < 13; turn++) {
+            List<Card> currentCardsOnTable = new ArrayList<>();
 
+            for (int currentPlayer = startingPlayer; currentPlayer < 4; currentPlayer++, currentPlayer %= 4) {
+                // Ask the algorithm to play a card, given the cards currently on the table
+                Card playedCard = algorithms.get(currentPlayer).playCard(currentCardsOnTable);
+
+                // Add the played card to the cards on the table
+                currentCardsOnTable.add(playedCard);
+            }
+
+            // Send the final cards to each algorithm
+            for (Algorithm a : algorithms) {
+                a.getFinalCards(currentCardsOnTable);
+            }
+
+            // Figure out which player played the winning card
+            int winningIndex = Game.getIndexOfWinningCard(currentCardsOnTable);
+            int winningPlayerIndex = (winningIndex + startingPlayer) % 4; // Just gonna hope that the math works out
+
+            // Notify the algorithms whether they're starting the next trick or not
+            for (int i = 0; i < 4; i++) {
+                algorithms.get(i).getIsStartingNextSuit(i == winningPlayerIndex);
+            }
         }
     }
 
-    public int getStartingPlayer() {
-        for ()
+    private int getStartingPlayer() {
+        for (int i = 0; i < algorithms.size(); i++) {
+            Algorithm a = algorithms.get(i);
+            if (Game.isStartingPlayer(a.getCards())) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

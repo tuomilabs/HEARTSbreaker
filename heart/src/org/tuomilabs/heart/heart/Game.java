@@ -23,6 +23,12 @@ public class Game {
         return highestCard;
     }
 
+    public static int getIndexOfWinningCard(List<Card> cards) {
+        Card winningCard = getTrickWinner(cards);
+
+        return cards.indexOf(winningCard);
+    }
+
     public static boolean isStartingPlayer(List<Card> playerCards) {
         for (Card c : playerCards) {
             if (c.equals(Cards.TWO_OF_SPADES)) {
