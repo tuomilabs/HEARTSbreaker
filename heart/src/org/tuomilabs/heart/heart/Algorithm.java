@@ -7,7 +7,7 @@ public interface Algorithm {
     void dealCards(List<Card> dealtCards);
     Card playCard(List<Card> currentlyOnTable);
     void getFinalCards(List<Card> finalCards);
-    void getIsStartingNextTrick(boolean starting);
+    void getWhoIsStartingNextTrick(int idOfStarting);
     void setID(int id);
     List<Card> getCards();
 }
