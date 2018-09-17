@@ -1,8 +1,8 @@
 package org.tuomilabs.heart.heart;
 
 public class Card {
-    private int value;
-    private char suit;
+    private final int value;
+    private final char suit;
 
     @Override
     public boolean equals(Object o) {

@@ -9,19 +9,15 @@ import java.util.List;
 
 public class AlgorithmTrainer {
     private Class algorithmType;
-    private Algorithm a1;
-    private Algorithm a2;
-    private Algorithm a3;
-    private Algorithm a4;
+    private List<Algorithm> algorithms;
 
     AlgorithmTrainer(Class algorithmType) {
         this.algorithmType = algorithmType;
 
         try {
-            a1 = (Algorithm) algorithmType.newInstance();
-            a2 = (Algorithm) algorithmType.newInstance();
-            a3 = (Algorithm) algorithmType.newInstance();
-            a4 = (Algorithm) algorithmType.newInstance();
+            for (int i = 0; i < 4; i++) {
+                algorithms.add((Algorithm) this.algorithmType.newInstance());
+            }
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -37,13 +33,17 @@ public class AlgorithmTrainer {
         // Deal the cards
         List<List<Card>> eachPlayerCards = ListUtils.partition(deck, 4);
 
-        a1.dealCards(eachPlayerCards.get(0));
-        a2.dealCards(eachPlayerCards.get(1));
-        a3.dealCards(eachPlayerCards.get(2));
-        a4.dealCards(eachPlayerCards.get(3));
+        for (int i = 0; i < 4; i++) {
+            algorithms.get(i).dealCards(eachPlayerCards.get(i));
+        }
 
+        int startingPlayer = getStartingPlayer();
         for (int turn = 0; turn < 13; turn++) {
 
         }
+    }
+
+    public int getStartingPlayer() {
+        for ()
     }
 }

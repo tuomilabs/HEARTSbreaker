@@ -1,34 +1,37 @@
-package org.tuomilabs.heart.core;
+package org.tuomilabs.heart.heart;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
-	
-	public static void main(String[] args){
-		ArrayList<Card> hand = new ArrayList<Card>();
-		ArrayList<Card> trickcards = new ArrayList<Card>();
+    public static Card getTrickWinner(List<Card> cards) {
+        Card highestCard = cards.get(0);
+
+        for (int i = 1; i < cards.size(); i++) {
+            Card currentCard = cards.get(i);
+
+            // If the suit is different, then there's no way it can win the suit
+            if (currentCard.getSuit() != highestCard.getSuit()) {
+                continue;
+            }
+
+            if (currentCard.getValue() > highestCard.getValue()) {
+                highestCard = currentCard;
+            }
+        }
+
+        return highestCard;
     }
-	
-	private void trick(){
-		
-	}
-	
-	private int trickwinner(ArrayList<Card> trickcards){
-		Card largest = new Card(trickcards.get(0));
-		for(Card i:trickcards){
-			if( i.getsuit() == largest.getsuit()){
-				if(i.getvalue() > largest.getvalue()){
-					largest.setvalue(i.getvalue());
-					largest.setplayer(i.getplayer());
-				}
-			}
-		}
-		return largest.getplayer();
-	}
-	
-	private boolean checkifstarting(ArrayList<Card> hand){
-		for(int i = 0; i < 13; i++){
-			if(hand.get(i).getvalue() == 0 && hand.get(i).getsuit() == 0) return true;
-		}
-		return false;
-	}
+
+    public static boolean isStartingPlayer(List<Card> playerCards) {
+        Card twoOfSpades = new Card(2, 's');
+
+        for (Card c : playerCards) {
+            if (c.equals(twoOfSpades)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
