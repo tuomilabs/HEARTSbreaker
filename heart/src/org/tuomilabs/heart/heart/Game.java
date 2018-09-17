@@ -24,10 +24,8 @@ public class Game {
     }
 
     public static boolean isStartingPlayer(List<Card> playerCards) {
-        Card twoOfSpades = new Card(2, 's');
-
         for (Card c : playerCards) {
-            if (c.equals(twoOfSpades)) {
+            if (c.equals(Cards.TWO_OF_SPADES)) {
                 return true;
             }
         }
