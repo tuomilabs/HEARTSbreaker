@@ -211,7 +211,7 @@ public class FirstAlgorithm implements Algorithm {
     private boolean havesuit(int suit) {
         boolean havesuit = false;
         for (int i = 0; i < myCards.size(); i++) {
-            if (myCards.get(i).getSuit() == suit) havesuit = true;
+            if (myCards.get(i).getSuit() == getSuitNumber(suit)) havesuit = true;
         }
         return havesuit;
     }
@@ -270,6 +270,7 @@ public class FirstAlgorithm implements Algorithm {
         for (int i = 0; i < 4; i++) {
             if (finalCards.get(i).getSuit() != startingSuit) suitsEmpty[i][getSuitNumber(startingSuit)] = true;
             if (cardsPlayed.contains(finalCards.get(i)) == false) cardsPlayed.add(finalCards.get(i));
+            if (myCards.contains(finalCards.get(i))) myCards.remove(finalCards.get(i));
         }
 
 
