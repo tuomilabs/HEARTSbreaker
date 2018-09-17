@@ -6,8 +6,8 @@ public class Main {
     }
 
     private void run() {
-        // Initialize the AlgorithmTrainer
-        AlgorithmTrainer at = new AlgorithmTrainer(FirstAlgorithm.class);
+        // Initialize the GameSimulator
+        GameSimulator at = new GameSimulator(FirstAlgorithm.class);
 
         at.playGame();
     }
