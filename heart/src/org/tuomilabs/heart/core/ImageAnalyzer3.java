@@ -75,6 +75,16 @@ public class ImageAnalyzer3 {
 
 
     public static void main(String[] args) throws IOException {
+//        System.out.println(getDirection(new int[]{1698, 474}, new int[]{1699, 473}));
+//        System.out.println(getDirection(new int[]{1699, 473}, new int[]{1706, 473}));
+//        System.out.println(getDirection(new int[]{1706, 473}, new int[]{1710, 474}));
+
+//        if (true) {
+//            System.exit(12);
+//        }
+
+
+
         BufferedImage original = ImageIO.read(new File("C:\\development\\HEARTSbreaker\\heart\\saved_frame_82.jpg"));
         BufferedImage croppedImage = cropImage(original, new Rectangle(700, 1300, 2500, 1300));
         BufferedImage thresholded = threshold(croppedImage);
@@ -118,7 +128,7 @@ public class ImageAnalyzer3 {
 
         for (Contour r : realContours) {
             System.out.println("Getting corners!");
-            List<int[]> corners = getCorners(r, 100);
+            List<int[]> corners = getCorners(r, 20);
 
             System.out.println("Corners: ");
             for (int[] corner : corners) {
@@ -143,6 +153,8 @@ public class ImageAnalyzer3 {
     }
 
     private static List<int[]> getCorners(Contour contour, int tolerance) {
+        tolerance = (int) (((double)tolerance / 100) * ((double)contour.external.size()));
+
         List<int[]> nePoints = new ArrayList<>();
         List<int[]> sePoints = new ArrayList<>();
         List<int[]> swPoints = new ArrayList<>();
@@ -162,54 +174,61 @@ public class ImageAnalyzer3 {
 //                return new ArrayList<>();
 //            }
 
+            Point2D_I32 p = contour.external.get(i % contour.external.size());
+
 
             // If the number of errors exceeded the tolerance, we probably changed direction.
             // Update direction and reset number of errors to zero.
             if (errors > tolerance) {
 //                System.out.println("Direction changed.");
-                direction++;
+                direction += whichWay(prev, p, direction);
+                direction += 4;
                 direction %= 4;
                 changes++;
                 errors = 0;
             }
 
-            Point2D_I32 p = contour.external.get(i % contour.external.size());
 
-
-//            System.out.println("Current point: " + p + "; error: " + errors);
-            System.out.println(p.getX() + ", " + p.getY());
+            System.out.println("Current point: " + p + "; Current direction: " + direction + " (moving: " + getDirection(prev, p) + ") with error " + errors + "/" + tolerance);
+//            System.out.println(p.getX() + ", " + p.getY());
 
 
             switch (direction) {
                 case 0:
-                    if (p.getX() > prev.getX() && p.getY() > prev.getY()) {
+                    if (getDirection(prev, p) == 0) {
                         nePoints.add(new int[]{p.getX(), p.getY()});
                     } else {
+//                        System.out.println("Switching from " + direction + " to " + getDirection(prev, p) + "!");
                         errors++;
                     }
                     break;
                 case 1:
-                    if (p.getX() > prev.getX() && p.getY() < prev.getY()) {
+                    if (getDirection(prev, p) == 1) {
                         sePoints.add(new int[]{p.getX(), p.getY()});
                     } else {
+//                        System.out.println("Switching from " + direction + " to " + getDirection(prev, p) + "!");
                         errors++;
                     }
                     break;
                 case 2:
-                    if (p.getX() < prev.getX() && p.getY() < prev.getY()) {
+                    if (getDirection(prev, p) == 2) {
                         nwPoints.add(new int[]{p.getX(), p.getY()});
                     } else {
+//                        System.out.println("Switching from " + direction + " to " + getDirection(prev, p) + "!");
                         errors++;
                     }
                     break;
                 case 3:
-                    if (p.getX() < prev.getX() && p.getY() > prev.getY()) {
+                    if (getDirection(prev, p) == 3) {
                         swPoints.add(new int[]{p.getX(), p.getY()});
                     } else {
+//                        System.out.println("Switching from " + direction + " to " + getDirection(prev, p) + "!");
                         errors++;
                     }
                     break;
             }
+
+            prev = p;
         }
 
 
@@ -230,6 +249,22 @@ public class ImageAnalyzer3 {
         corners.add(nwPoints.get(nwPoints.size() - 1));
 
         return corners;
+    }
+
+    private static int getDirection(Point2D_I32 prev, Point2D_I32 p) {
+        return getDirection(new int[]{prev.getX(), prev.getY()}, new int[]{p.getX(), p.getY()});
+    }
+
+    private static int whichWay(Point2D_I32 prev, Point2D_I32 p, int currentDirection) {
+        int direction = getDirection(new int[]{prev.getX(), prev.getY()}, new int[]{p.getX(), p.getY()});
+
+        if (direction == currentDirection - 1) {
+            return -1;
+        } else if (direction == currentDirection + 1) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static int getStartingDirection(Contour contour) {
@@ -273,15 +308,18 @@ public class ImageAnalyzer3 {
 
     // Gets the direction from p1 to p2.
     private static int getDirection(int[] p1, int[] p2) {
-        if (p2[0] > p1[0] && p2[1] > p1[1]) {
+        if (p2[0] >= p1[0] && p2[1] >= p1[1]) {
             return 0;
-        } else if (p2[0] < p1[0] && p2[1] < p1[1]) {
+        } else if (p2[0] >= p1[0] && p2[1] <= p1[1]) {
+//            System.out.println(p2[0] + " >= " + p1[0] + " and " + p2[1] + " <= " + p1[1]);
             return 1;
-        } else if (p2[0] > p1[0] && p2[1] < p1[1]) {
+        } else if (p2[0] <= p1[0] && p2[1] <= p1[1]) {
             return 2;
-        } else if (p2[0] < p1[0] && p2[1] > p1[1]) {
+        } else if (p2[0] <= p1[0] && p2[1] >= p1[1]) {
             return 3;
         }
+
+        System.err.println("Direction from " + Arrays.toString(p1) + " to " + Arrays.toString(p2) + " is undefined.");
 
         return -1;
     }
