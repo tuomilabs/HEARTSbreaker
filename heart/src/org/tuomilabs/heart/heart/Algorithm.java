@@ -10,4 +10,5 @@ public interface Algorithm {
     void getWhoIsStartingNextTrick(int idOfStarting);
     void setID(int id);
     List<Card> getCards();
+    List<Double> getCoefficients();
 }
