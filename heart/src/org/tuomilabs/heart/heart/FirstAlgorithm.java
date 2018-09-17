@@ -8,10 +8,13 @@ public class FirstAlgorithm implements Algorithm {
     private List<Card> cardsPlayed;
     private List<Card> myCards;
     private boolean[][] suitsEmpty;
+    public double points, Cpoints, POOS, CPOOS, cardsplayed, Ccardsplayed, VR, CVR, bigC;
 
-
-    public FirstAlgorithm(List<Card> dealtCards) {
+    
+    public FirstAlgorithm(List<Card> dealtCards, List<Double> inputs) {
+    	
         cardsPlayed = new ArrayList<>();
+        
         myCards = new ArrayList<>(dealtCards);
 
         suitsEmpty = new boolean[3][4];
@@ -21,8 +24,22 @@ public class FirstAlgorithm implements Algorithm {
                 suitsEmpty[i][j] = false;
             }
         }
+        
+        points = inputs.get(0);
+        Cpoints = inputs.get(1);
+        POOS = inputs.get(2);
+        CPOOS = inputs.get(3);
+        cardsplayed = inputs.get(4);
+        Ccardsplayed = inputs.get(5);
+        VR = inputs.get(6);
+        CVR = inputs.get(7);
+        bigC = inputs.get(8);
+        
+        
     }
+    
 
+    
     private List<Card> getAllRemainingCardsInSuitThatOtherPlayersPossess(List<Card> cardsPlayed, List<Card> myCards) {
         List<Card> knownCardsInSuit = new ArrayList<>();
         List<Card> remainingCards = DeckFactory.generateDeck();
@@ -103,7 +120,16 @@ public class FirstAlgorithm implements Algorithm {
 
         return null;
     }
-
+    
+    private int playcard_havesuit(){
+    	int cardplayed = 0;
+    	for(int i = 0; i < myCards.size(); i++){
+    		if(FirstAlgorithm.getValue()
+    	}
+    	
+    	
+    	return 0;
+    }
 
     @Override
     public Card playCard(List<Card> currentlyOnTable) {
