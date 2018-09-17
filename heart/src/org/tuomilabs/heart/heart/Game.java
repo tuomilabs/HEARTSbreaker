@@ -49,7 +49,7 @@ public class Game {
         return points;
     }
 
-    private static int getPointValue(Card c) {
+    public static int getPointValue(Card c) {
         if (c.getSuit() == 'h') {
             return 1;
         } else if (c.equals(Cards.QUEEN_OF_SPADES)) {
