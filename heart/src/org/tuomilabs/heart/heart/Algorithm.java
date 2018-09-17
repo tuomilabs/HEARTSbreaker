@@ -8,5 +8,6 @@ public interface Algorithm {
     Card playCard(List<Card> currentlyOnTable);
     void getFinalCards(List<Card> finalCards);
     void getIsStartingNextTrick(boolean starting);
+    void setID(int id);
     List<Card> getCards();
 }

@@ -19,8 +19,8 @@
       <file leaf-file-name="Algorithm.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/Algorithm.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+            <state relative-caret-position="170">
+              <caret line="10" column="23" lean-forward="false" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -29,8 +29,8 @@
       <file leaf-file-name="AlgorithmTrainer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/AlgorithmTrainer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="542">
-              <caret line="61" column="81" lean-forward="true" selection-start-line="61" selection-start-column="81" selection-end-line="61" selection-end-column="81" />
+            <state relative-caret-position="136">
+              <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -998,12 +998,12 @@
       <workItem from="1536283777080" duration="5785000" />
       <workItem from="1536890589558" duration="9842000" />
       <workItem from="1537202387818" duration="5434000" />
-      <workItem from="1537214511684" duration="3174000" />
+      <workItem from="1537214511684" duration="3431000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="56638000" />
+    <option name="totallyTimeSpent" value="56895000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="116" y="44" width="1566" height="927" extended-state="0" />
@@ -1322,8 +1322,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/AlgorithmTrainer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="542">
-          <caret line="61" column="81" lean-forward="true" selection-start-line="61" selection-start-column="81" selection-end-line="61" selection-end-column="81" />
+        <state relative-caret-position="136">
+          <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1332,8 +1332,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/Algorithm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+        <state relative-caret-position="170">
+          <caret line="10" column="23" lean-forward="false" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
           <folding />
         </state>
       </provider>

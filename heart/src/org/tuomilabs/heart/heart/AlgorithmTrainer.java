@@ -16,6 +16,7 @@ public class AlgorithmTrainer {
         try {
             for (int i = 0; i < 4; i++) {
                 algorithms.add((Algorithm) this.algorithmType.newInstance());
+                algorithms.setID(i);
             }
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
@@ -59,7 +60,7 @@ public class AlgorithmTrainer {
 
             // Notify the algorithms whether they're starting the next trick or not
             for (int i = 0; i < 4; i++) {
-                algorithms.get(i).getIsStartingNextSuit(i == winningPlayerIndex);
+                algorithms.get(i).getIsStartingNextTrick(i == winningPlayerIndex);
             }
         }
     }
