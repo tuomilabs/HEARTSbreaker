@@ -13,7 +13,7 @@ public class Main {
 
     private void run() throws Exception {
         // Initialize the GameSimulator
-
+/*
         Double[] coefficientsArray = new Double[]{133.0, 0.06742121460764763, 0.03129535784045004, 1.0, 0.08158386768743209, 55.0, 0.03482095169761712, 0.051721344650463776, 0.012530869790994655, 1.6284763890297371, 2.2278345325520537};
         List<Double> coefficients = Arrays.asList(coefficientsArray);
 
@@ -24,13 +24,14 @@ public class Main {
         four.add(coefficients);
 
 
-        GameSimulator at = new GameSimulator(FirstAlgorithm.class, four, true);
+        GameSimulator at = new GameSimulator(FirstAlgorithm.class, true);
 
         at.playGame();
         at.printScores();
+        */
 
-//        AlgorithmTrainer at = new AlgorithmTrainer();
+        AlgorithmTrainer at = new AlgorithmTrainer();
 
-//        at.trainAlgorithms();
+        at.trainAlgorithms();
     }
 }
