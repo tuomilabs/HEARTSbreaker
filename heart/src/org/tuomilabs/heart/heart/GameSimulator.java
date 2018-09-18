@@ -80,7 +80,7 @@ public class GameSimulator {
             algorithms.get(i).dealCards(eachPlayerCards.get(i));
 
             if (displayGame) {
-                System.out.println("Player " + i + " just got the cards: " + eachPlayerCards.get(i) + "");
+                System.out.println("Player " + i + " just got the cards: " + Game.sortCards(eachPlayerCards.get(i)) + "");
             }
         }
 
@@ -133,6 +133,10 @@ public class GameSimulator {
             List<Card> currentTakenCards = takenCards.get(winningPlayerIndex);
             currentTakenCards.addAll(currentCardsOnTable);
             takenCards.put(winningPlayerIndex, currentTakenCards);
+
+
+            // Set the new starting player for the next round
+            startingPlayer = winningPlayerIndex;
         }
 
 
