@@ -3,6 +3,7 @@ package org.tuomilabs.heart.heart;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameSimulator {
@@ -87,7 +88,7 @@ public class GameSimulator {
         }
     }
 
-    public void playGame() {
+    public void playGame() throws Exception {
         Map<Integer, List<Card>> takenCards = new HashMap<>();
         takenCards.put(0, new ArrayList<>());
         takenCards.put(1, new ArrayList<>());
@@ -132,6 +133,10 @@ public class GameSimulator {
                 // Ask the algorithm to play a card, given the cards currently on the table
                 Card playedCard = algorithms.get(currentPlayer).playCard(currentCardsOnTable);
                 cardsPlayed++;
+
+                if (cardPlayed(playedCard, takenCards)) {
+                    throw new Exception("The card " + playedCard + " cannot be played again!");
+                }
 
                 if (displayGame) {
                     System.out.println("Player " + currentPlayer + " just played a " + playedCard + "");
@@ -181,6 +186,18 @@ public class GameSimulator {
 
 
         assert points.get(0) + points.get(1) + points.get(2) + points.get(3) == 26;
+    }
+
+    private boolean cardPlayed(Card playedCard, Map<Integer, List<Card>> takenCards) {
+        for (int i = 0; i < 4; i++) {
+            for (Card c : takenCards.get(i)) {
+                if (c.equals(playedCard)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     void printScores() {

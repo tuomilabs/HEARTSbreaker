@@ -136,40 +136,40 @@ public class FirstAlgorithm implements Algorithm {
         return null;
     }
 
-    private int getFirstCardOfSuit(char suit){
-    	if (suit == ' '){
-    		for(int i = 0; i < 13; i++){
-        		if(cardPlayed[i] == false){
-        			return i;
-        		}
-        	}
-    	}
-    	
-    	for(int i = 0; i < 13; i++){
-    		if(myCards.get(i).getSuit() == suit && cardPlayed[i] == false){
-    			return i;
-    		}
-    	}
-    	return -1;
+    private int getFirstCardOfSuit(char suit) {
+        if (suit == ' ') {
+            for (int i = 0; i < 13; i++) {
+                if (cardPlayed[i] == false) {
+                    return i;
+                }
+            }
+        }
+
+        for (int i = 0; i < 13; i++) {
+            if (myCards.get(i).getSuit() == suit && cardPlayed[i] == false) {
+                return i;
+            }
+        }
+        return -1;
     }
-    
+
     private int playcard_havesuit(List<Card> currentlyOnTable) {
         int cardplayed = 0;
         int minrisk = getFirstCardOfSuit(currentlyOnTable.get(0).getSuit());
         boolean runmin = true;
         int maxCard = maxCardOfSuit(currentlyOnTable);
-        
+
         int maxvalue = -1;
-        
+
         for (int i = 0; i < myCards.size(); i++) {
-            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) >= getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
+            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getRisk(myCards.get(i), maxCard) >= getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < playingC) {
                 runmin = false;
-                if(myCards.get(i).getValue() > maxvalue){
-                	cardplayed = i;
-                	maxvalue = myCards.get(i).getValue();
+                if (myCards.get(i).getValue() > maxvalue) {
+                    cardplayed = i;
+                    maxvalue = myCards.get(i).getValue();
                 }
             }
-            if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit()) {
+            if (getRisk(myCards.get(i), maxCard) < getRisk(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit()) {
                 minrisk = i;
             }
         }
@@ -179,26 +179,30 @@ public class FirstAlgorithm implements Algorithm {
     }
 
     private int playcard_donthavesuit() {
-        int cardplayed = 0;
-        int minrisk = 0;
-        int maxCard = -1;
-        boolean runmin = true;
-        int maxvalue = -1;
+        int cardIWantToPlayIndex = -1;
+        double greatestRisk = Double.MIN_VALUE;
+
+
+        int maxCard = -1; // Always -1 in this case, since we don't care
+
+        // Iterate through all of the cards I have
         for (int i = 0; i < myCards.size(); i++) {
-            if (this.cardPlayed[i] == false && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard)) {
-            	if(myCards.get(i).getValue() > maxvalue){
-                	cardplayed = i;
-                	maxvalue = myCards.get(i).getValue();
-                }
-                runmin = false;
+            // If the card has already been played, skip it
+            if (cardPlayed[i]) {
+                continue;
             }
-            if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
-                minrisk = i;
+
+
+            double currentRisk = getRisk(myCards.get(i), maxCard);
+
+            System.out.println("Current risk: " + currentRisk);
+
+            if (currentRisk > greatestRisk) {
+                cardIWantToPlayIndex = i;
             }
         }
-        if (runmin) return minrisk;
 
-        return cardplayed;
+        return cardIWantToPlayIndex;
     }
 
     private int playcard_starting() {
@@ -213,26 +217,26 @@ public class FirstAlgorithm implements Algorithm {
             }
 
             for (int i = id + 1; i < starting; i++, i %= 4) {
-                
+
                 if (suitsEmpty[i][s]) POOS++;
             }
             for (int i = 0; i < myCards.size(); i++) {
-                if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
-                	if(myCards.get(i).getValue() > maxvalue){
-                    	cardplayed = i;
-                    	maxvalue = myCards.get(i).getValue();
+                if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getRisk(myCards.get(i), maxCard) > getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < startingC) {
+                    if (myCards.get(i).getValue() > maxvalue) {
+                        cardplayed = i;
+                        maxvalue = myCards.get(i).getValue();
                     }
                     runmin = false;
                 }
-                if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
+                if (getRisk(myCards.get(i), maxCard) < getRisk(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
                     minrisk = i;
                 }
             }
 
         }
         if (runmin) {
-        	
-        	return minrisk;
+
+            return minrisk;
         }
         return cardplayed;
     }
@@ -252,15 +256,20 @@ public class FirstAlgorithm implements Algorithm {
         }
     }
 
-    private double getValue(Card card, int maxCard) {
+    private double getRisk(Card card, int maxCard) {
+        double risk = 0;
 
-        if (maxCard == -1)
-            return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1);
+        if (maxCard == -1) {
+            risk = (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1);
+        } else {
+            risk = (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1) * Math.min(1, Math.max(0, card.getValue() - maxCard));
+        }
 
-
-        else
-            return (pointsInPlay * CpointsInPlay + 1) * (Game.getPointValue(card) * Cpoints + 1) * (POOS * CPOOS + 1) * (cardsPlayedOfSuit * CcardsPlayedOfSuit + 1) * (getValueRatio(card, cardsPlayed, myCards) * CVR + 1) * Math.min(1, Math.max(0, card.getValue() - maxCard));
-
+        if (Double.isNaN(risk)) {
+            return 0.5;
+        } else {
+            return risk;
+        }
     }
 
     private boolean havesuit(char suit) {
@@ -291,38 +300,61 @@ public class FirstAlgorithm implements Algorithm {
 
     @Override
     public Card playCard(List<Card> currentlyOnTable) {
+        System.out.print("The cards " + id + " has left are ");
+
+        for (int i = 0; i < myCards.size(); i++) {
+            if (!cardPlayed[i]) {
+                System.out.print(myCards.get(i) + " ");
+            }
+        }
+
+        System.out.println();
+
+
         cardsPlayedOfSuit = 0;
         pointsInPlay = 0;
         POOS = 0;
 
-        int startingSuit;
+
+        // CASE 1: There are already cards on the table.
         if (currentlyOnTable.size() > 0) {
-            startingSuit = currentlyOnTable.get(0).getSuit();
+            System.out.println("There are already cards on the table.");
+
+            // Get the starting suit
+            char startingSuit = currentlyOnTable.get(0).getSuit();
+            System.out.println("The starting suit is " + startingSuit);
+
+
+            // Add the cards on the table to cards that the (remaining) players can't have
             for (Card c : currentlyOnTable) {
                 cardsPlayed.add(c);
             }
 
+            // Update POOS values
+
             for (Card c : cardsPlayed) {
                 pointsInPlay += Game.getPointValue(c);
-                if (c.getSuit() == startingSuit) cardsPlayedOfSuit++;
+                if (c.getSuit() == startingSuit) {
+                    cardsPlayedOfSuit++;
+                }
             }
 
             for (int i = id + 1; i < starting; i++, i %= 4) {
                 if (suitsEmpty[i][getSuitNumber(startingSuit)]) POOS++;
             }
-        }
 
 
-        if (currentlyOnTable.size() == 0) {
-            return myCards.get(playcard_starting());
-        } else {
-//            System.out.println("There are some cards on the table, so we're checking if we have the suit.");
-            if (havesuit(currentlyOnTable.get(0).getSuit())) {
+            // Choose which card to play
+            if (havesuit(currentlyOnTable.get(0).getSuit())) { // If I have the suit, run the haveSuit choosing function
                 return myCards.get(playcard_havesuit(currentlyOnTable));
-            } else {
+            } else { // If I don't have the suit, run the dontHaveSuit choosing function
                 return myCards.get(playcard_donthavesuit());
             }
+        } else
 
+        // CASE 2: There are no cards already on the table.
+        { // In this case, we are starting.
+            return myCards.get(playcard_starting());
         }
     }
 

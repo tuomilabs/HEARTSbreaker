@@ -7,13 +7,13 @@ import java.util.List;
 public class AlgorithmTrainer {
     private static final int INITIAL_ALGORITHMS = 200;
     private static final int ALGORITHMS_TO_TEST_PER_ROUND = 50;
-    private static final int GENERATIONS = 50;
+    private static final int GENERATIONS = 1000;
     private static int ROUNDS_PER_GAME = 10;
 
     List<AlgorithmQuality> goodAlgorithms;
     private double mutationFactor = 0.03;
 
-    void trainAlgorithms() {
+    void trainAlgorithms() throws Exception {
         goodAlgorithms = new ArrayList<>();
 
 
