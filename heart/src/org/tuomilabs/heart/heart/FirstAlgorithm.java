@@ -7,6 +7,7 @@ import java.util.List;
 public class FirstAlgorithm implements Algorithm {
     private List<Card> cardsPlayed;
     private List<Card> myCards;
+    private boolean[] cardPlayed;
     private boolean[][] suitsEmpty;
     private int starting;
     private int id;
@@ -137,26 +138,38 @@ public class FirstAlgorithm implements Algorithm {
 
     private int playcard_havesuit(List<Card> currentlyOnTable) {
         int cardplayed = 0;
+        int minrisk = 0;
+        boolean runmin = true;
         int maxCard = maxCardOfSuit(currentlyOnTable);
         for (int i = 0; i < myCards.size(); i++) {
-            if (myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
+            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
                 cardplayed = i;
+                runmin = false;
+            }
+            if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit()) {
+                minrisk = i;
             }
         }
-
+        if (runmin) return minrisk;
 
         return cardplayed;
     }
 
     private int playcard_donthavesuit() {
         int cardplayed = 0;
+        int minrisk = 0;
         int maxCard = -1;
+        boolean runmin = true;
         for (int i = 0; i < myCards.size(); i++) {
-            if (getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard)) {
+            if (this.cardPlayed[i] == false && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard)) {
                 cardplayed = i;
+                runmin = false;
+            }
+            if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
+                minrisk = i;
             }
         }
-
+        if (runmin) return minrisk;
 
         return cardplayed;
     }
@@ -164,21 +177,29 @@ public class FirstAlgorithm implements Algorithm {
     private int playcard_starting() {
         int cardplayed = 0;
         int maxCard = -1;
+        int minrisk = 0;
+        boolean runmin = true;
         for (int s = 0; s < 4; s++) {
             for (Card c : cardsPlayed) {
                 if (c.getSuit() == s) cardsPlayedOfSuit++;
             }
 
             for (int i = id + 1; i < starting; i++, i %= 4) {
+                System.out.println(getSuitNumber(s));
                 if (suitsEmpty[i][getSuitNumber(s)]) POOS++;
             }
             for (int i = 0; i < myCards.size(); i++) {
-                if (myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
+                if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
                     cardplayed = i;
+                    runmin = false;
+                }
+                if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
+                    minrisk = i;
                 }
             }
-        }
 
+        }
+        if (runmin) return minrisk;
         return cardplayed;
     }
 
@@ -208,10 +229,14 @@ public class FirstAlgorithm implements Algorithm {
 
     }
 
-    private boolean havesuit(int suit) {
+    private boolean havesuit(char suit) {
+//        System.out.println("Currently, checking if we have a " + ((char) suit) + ".");
+
         boolean havesuit = false;
-        for (int i = 0; i < myCards.size(); i++) {
-            if (myCards.get(i).getSuit() == getSuitNumber(suit)) havesuit = true;
+        for (Card cardIHave : myCards) {
+            if (this.cardPlayed[myCards.indexOf(cardIHave)] == false && cardIHave.getSuit() == suit) {
+                havesuit = true;
+            }
         }
         return havesuit;
     }
@@ -257,9 +282,12 @@ public class FirstAlgorithm implements Algorithm {
         if (currentlyOnTable.size() == 0) {
             return myCards.get(playcard_starting());
         } else {
-            if (havesuit(currentlyOnTable.get(0).getSuit())) return myCards.get(playcard_havesuit(currentlyOnTable));
-
-            else return myCards.get(playcard_donthavesuit());
+//            System.out.println("There are some cards on the table, so we're checking if we have the suit.");
+            if (havesuit(currentlyOnTable.get(0).getSuit())) {
+                return myCards.get(playcard_havesuit(currentlyOnTable));
+            } else {
+                return myCards.get(playcard_donthavesuit());
+            }
 
         }
     }
@@ -267,13 +295,49 @@ public class FirstAlgorithm implements Algorithm {
     @Override
     public void getFinalCards(List<Card> finalCards) {
         int startingSuit = finalCards.get(0).getSuit();
-        for (int i = 0; i < 4; i++) {
-            if (finalCards.get(i).getSuit() != startingSuit) suitsEmpty[i][getSuitNumber(startingSuit)] = true;
-            if (cardsPlayed.contains(finalCards.get(i)) == false) cardsPlayed.add(finalCards.get(i));
-            if (myCards.contains(finalCards.get(i))) myCards.remove(finalCards.get(i));
+
+        for (Card cardInTrick : finalCards) {
+            if (cardInTrick.getSuit() != startingSuit) {
+                suitsEmpty[finalCards.indexOf(cardInTrick)][getSuitNumber(startingSuit)] = true;
+            }
+
+            if (!cardsPlayed.contains(cardInTrick)) {
+                cardsPlayed.add(cardInTrick);
+            }
+
+            if (myCards.contains(cardInTrick)) {
+                int index = myCards.indexOf(cardInTrick);
+                cardPlayed[index] = true;
+            }
         }
 
 
+//        System.out.println("ID: " + id + "; Getting the final cards: " + finalCards);
+
+//        int removeIndex = -1;
+
+//        int startingSuit = finalCards.get(0).getSuit();
+//        for (int i = 0; i < 4; i++) {
+//            Card currentCard = finalCards.get(i);
+//            System.out.println("Currently looking at the card " + currentCard);
+
+//            if (finalCards.get(i).getSuit() != startingSuit) {
+//                suitsEmpty[i][getSuitNumber(startingSuit)] = true;
+//            }
+//
+//            if (!cardsPlayed.contains(finalCards.get(i))) {
+//                cardsPlayed.add(finalCards.get(i));
+//            }
+
+//            for (int i1 = 0; i1 < myCards.size(); i1++) {
+//                Card myCard = myCards.get(i1);
+//                if (myCard.equals(currentCard)) {
+//                    removeIndex = i1;
+//                }
+//            }
+//        }
+//
+//        myCards.remove(removeIndex);
     }
 
 
@@ -297,9 +361,10 @@ public class FirstAlgorithm implements Algorithm {
 
     @Override
     public void dealCards(List<Card> dealtCards) {
-
         this.myCards = dealtCards;
 
+        this.cardPlayed = new boolean[13];
+        Arrays.fill(this.cardPlayed, false);
     }
 
 

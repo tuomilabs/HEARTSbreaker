@@ -17,6 +17,12 @@ public class GameSimulator {
         this.algorithms = new ArrayList<>();
         displayGame = false;
 
+        points = new HashMap<>();
+        points.put(0, 0);
+        points.put(1, 0);
+        points.put(2, 0);
+        points.put(3, 0);
+
         try {
             for (int i = 0; i < 4; i++) {
                 algorithms.add((Algorithm) this.algorithmType.newInstance());
@@ -30,6 +36,12 @@ public class GameSimulator {
         this.algorithmType = algorithmType;
         this.algorithms = new ArrayList<>();
         this.displayGame = true;
+
+        points = new HashMap<>();
+        points.put(0, 0);
+        points.put(1, 0);
+        points.put(2, 0);
+        points.put(3, 0);
 
         try {
             for (int i = 0; i < 4; i++) {
@@ -130,6 +142,16 @@ public class GameSimulator {
             currentPoints += Game.calculatePoints(takenCards.get(i));
             points.put(i, currentPoints);
         }
+
+
+        assert points.get(0) + points.get(1) + points.get(2) + points.get(3) == 26;
+
+        System.out.println("");
+        System.out.println("");
+        System.out.println("Player 0 points: " + points.get(0));
+        System.out.println("Player 1 points: " + points.get(1));
+        System.out.println("Player 2 points: " + points.get(2));
+        System.out.println("Player 3 points: " + points.get(3));
     }
 
     private List<Double> randomCoefficients() {

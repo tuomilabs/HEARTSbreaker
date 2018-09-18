@@ -6,7 +6,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return "" + this.value + "" + (this.suit == 's' ? "♠" : this.suit == 'c' ? "♣" : this.suit == 'd' ? "♦" : "♥") + "";
+        return "" + (this.value < 11 ? this.value + "" : this.value == 11 ? "J" : this.value == 12 ? "Q" : this.value == 13 ? "K" : "A") + "" + (this.suit == 's' ? "♠" : this.suit == 'c' ? "♣" : this.suit == 'd' ? "♦" : "♥") + "";
     }
 
     @Override
