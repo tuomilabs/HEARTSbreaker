@@ -217,7 +217,7 @@ public class FirstAlgorithm implements Algorithm {
 
         }
         if (runmin) {
-        	System.out.println(minrisk);
+//        	System.out.println(minrisk);
         	return minrisk;
         }
         return cardplayed;

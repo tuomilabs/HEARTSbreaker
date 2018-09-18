@@ -133,6 +133,10 @@ public class GameSimulator {
             List<Card> currentTakenCards = takenCards.get(winningPlayerIndex);
             currentTakenCards.addAll(currentCardsOnTable);
             takenCards.put(winningPlayerIndex, currentTakenCards);
+
+
+            // Set the new starting player for the next round
+            startingPlayer = winningPlayerIndex;
         }
 
 

@@ -26,11 +26,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FirstAlgorithm.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="FirstAlgorithm.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/FirstAlgorithm.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="505">
-              <caret line="207" column="54" lean-forward="false" selection-start-line="207" selection-start-column="54" selection-end-line="207" selection-end-column="54" />
+            <state relative-caret-position="320">
+              <caret line="219" column="28" lean-forward="false" selection-start-line="219" selection-start-column="23" selection-end-line="219" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -48,11 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GameSimulator.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GameSimulator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/GameSimulator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="76" column="0" lean-forward="true" selection-start-line="76" selection-start-column="0" selection-end-line="76" selection-end-column="0" />
+            <state relative-caret-position="1085">
+              <caret line="137" column="61" lean-forward="false" selection-start-line="137" selection-start-column="61" selection-end-line="137" selection-end-column="61" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -153,6 +153,8 @@
       <find>final</find>
       <find>playCard</find>
       <find>Hash</find>
+      <find>starting</find>
+      <find>print</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -184,9 +186,9 @@
         <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/Main.java" />
         <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/DeckFactory.java" />
         <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/Card.java" />
-        <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/FirstAlgorithm.java" />
         <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/Game.java" />
         <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/GameSimulator.java" />
+        <option value="$PROJECT_DIR$/src/org/tuomilabs/heart/heart/FirstAlgorithm.java" />
       </list>
     </option>
   </component>
@@ -1051,12 +1053,12 @@
       <workItem from="1536283777080" duration="5785000" />
       <workItem from="1536890589558" duration="9842000" />
       <workItem from="1537202387818" duration="5434000" />
-      <workItem from="1537214511684" duration="15799000" />
+      <workItem from="1537214511684" duration="16356000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69263000" />
+    <option name="totallyTimeSpent" value="69820000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
@@ -1348,16 +1350,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/FirstAlgorithm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="505">
-          <caret line="207" column="54" lean-forward="false" selection-start-line="207" selection-start-column="54" selection-end-line="207" selection-end-column="54" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/AlgorithmTrainer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
@@ -1386,8 +1378,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/GameSimulator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="76" column="0" lean-forward="true" selection-start-line="76" selection-start-column="0" selection-end-line="76" selection-end-column="0" />
+        <state relative-caret-position="1085">
+          <caret line="137" column="61" lean-forward="false" selection-start-line="137" selection-start-column="61" selection-end-line="137" selection-end-column="61" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/tuomilabs/heart/heart/FirstAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="320">
+          <caret line="219" column="28" lean-forward="false" selection-start-line="219" selection-start-column="23" selection-end-line="219" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
