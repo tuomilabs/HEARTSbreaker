@@ -9,6 +9,7 @@ public class FirstAlgorithm implements Algorithm {
     private List<Card> myCards;
     private boolean[] cardPlayed;
     private boolean[][] suitsEmpty;
+    private boolean heartBroken;
     private int starting;
     private int id;
     public double pointsInPlay, CpointsInPlay, Cpoints, POOS, CPOOS, cardsPlayedOfSuit, CcardsPlayedOfSuit, VR, CVR, playingC, startingC;
@@ -16,6 +17,7 @@ public class FirstAlgorithm implements Algorithm {
 
     public FirstAlgorithm() {
         cardsPlayed = new ArrayList<>();
+        heartBroken = false;
 
         suitsEmpty = new boolean[4][4];
 
@@ -29,7 +31,7 @@ public class FirstAlgorithm implements Algorithm {
     public FirstAlgorithm(List<Card> dealtCards, List<Double> inputs) {
 
         cardsPlayed = new ArrayList<>();
-
+        heartBroken = false;
         myCards = new ArrayList<>(dealtCards);
 
         suitsEmpty = new boolean[4][4];
@@ -162,6 +164,7 @@ public class FirstAlgorithm implements Algorithm {
         int maxvalue = -1;
 
         for (int i = 0; i < myCards.size(); i++) {
+        	VR = getValueRatio(myCards.get(i), cardsPlayed, myCards);
             if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getRisk(myCards.get(i), maxCard) >= getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < playingC) {
                 runmin = false;
                 if (myCards.get(i).getValue() > maxvalue) {
@@ -187,11 +190,12 @@ public class FirstAlgorithm implements Algorithm {
 
         // Iterate through all of the cards I have
         for (int i = 0; i < myCards.size(); i++) {
+        	
             // If the card has already been played, skip it
             if (cardPlayed[i]) {
                 continue;
             }
-
+            VR = getValueRatio(myCards.get(i), cardsPlayed, myCards);
 
             double currentRisk = getRisk(myCards.get(i), maxCard);
 
@@ -206,12 +210,18 @@ public class FirstAlgorithm implements Algorithm {
     }
 
     private int playcard_starting() {
+    	if (cardsPlayed.size() == 0){
+    		return myCards.indexOf(Cards.TWO_OF_CLUBS);
+    	}
+    	
+    	
         int cardplayed = 0;
         int maxCard = -1;
         int minrisk = getFirstCardOfSuit(' ');
         boolean runmin = true;
         int maxvalue = -1;
         for (int s = 0; s < 4; s++) {
+        	if(heartBroken == false && s == 2) continue;
             for (Card c : cardsPlayed) {
                 if (c.getSuit() == s) cardsPlayedOfSuit++;
             }
@@ -221,6 +231,7 @@ public class FirstAlgorithm implements Algorithm {
                 if (suitsEmpty[i][s]) POOS++;
             }
             for (int i = 0; i < myCards.size(); i++) {
+            	VR = getValueRatio(myCards.get(i), cardsPlayed, myCards);
                 if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getRisk(myCards.get(i), maxCard) > getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < startingC) {
                     if (myCards.get(i).getValue() > maxvalue) {
                         cardplayed = i;
@@ -365,6 +376,9 @@ public class FirstAlgorithm implements Algorithm {
         for (Card cardInTrick : finalCards) {
             if (cardInTrick.getSuit() != startingSuit) {
                 suitsEmpty[finalCards.indexOf(cardInTrick)][getSuitNumber(startingSuit)] = true;
+            }
+            if (cardInTrick.getSuit() == 'h') {
+                heartBroken = true;
             }
 
             if (!cardsPlayed.contains(cardInTrick)) {
