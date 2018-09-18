@@ -8,13 +8,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.out.println("Let's go!!");
 
-        new Main().run();
+        new Main().train();
     }
 
-    private void run() throws Exception {
+    private void train() throws Exception {
+        AlgorithmTrainer at = new AlgorithmTrainer();
+
+        at.trainAlgorithms();
+    }
+
+    private void play() throws Exception {
         // Initialize the GameSimulator
-/*
-        Double[] coefficientsArray = new Double[]{133.0, 0.06742121460764763, 0.03129535784045004, 1.0, 0.08158386768743209, 55.0, 0.03482095169761712, 0.051721344650463776, 0.012530869790994655, 1.6284763890297371, 2.2278345325520537};
+
+        Double[] coefficientsArray = new Double[]{105.0, 0.6491194621242463, 1.752940358463908, 0.0, 0.7914513290561169, 62.0, 0.1136791236788397, 0.49844380209689865, 1.8478553796273784, 46.59543520494638, 161.6416210758341};
         List<Double> coefficients = Arrays.asList(coefficientsArray);
 
         List<List<Double>> four = new ArrayList<>();
@@ -28,10 +34,6 @@ public class Main {
 
         at.playGame();
         at.printScores();
-        */
 
-        AlgorithmTrainer at = new AlgorithmTrainer();
-
-        at.trainAlgorithms();
     }
 }

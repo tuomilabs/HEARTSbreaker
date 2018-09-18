@@ -60,6 +60,8 @@ public class GameSimulator {
 
         for (int i = 0; i < 4; i++) {
             algorithms.get(i).setCoefficients(randomCoefficients());
+//            System.out.println("GUYS: " + randomCoefficients().size());
+//            System.out.println("ALL RIGHT: " + algorithms.get(i).getCoefficients().size());
         }
     }
 
@@ -89,6 +91,8 @@ public class GameSimulator {
     }
 
     public void playGame() throws Exception {
+//        System.out.println("# coefficients: " + algorithms.get(1).getCoefficients().size());
+
         Map<Integer, List<Card>> takenCards = new HashMap<>();
         takenCards.put(0, new ArrayList<>());
         takenCards.put(1, new ArrayList<>());
@@ -223,10 +227,6 @@ public class GameSimulator {
     private List<Double> randomCoefficients() {
         List<Double> coefficients = new ArrayList<>();
 
-        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
-        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
-        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
-        coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
         coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
         coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));
         coefficients.add(ThreadLocalRandom.current().nextDouble(0, 3));

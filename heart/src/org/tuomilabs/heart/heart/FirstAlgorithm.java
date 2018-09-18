@@ -146,7 +146,7 @@ public class FirstAlgorithm implements Algorithm {
 
         for (int i = 0; i < myCards.size(); i++) {
         	VR = getValueRatio(myCards.get(i), cardsPlayed, myCards);
-            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getRisk(myCards.get(i), maxCard) >= getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < playingC) {
+            if (!this.cardPlayed[i] && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getRisk(myCards.get(i), maxCard) >= getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < playingC) {
 
                 runmin = false;
                 if (myCards.get(i).getValue() > maxvalue) {
@@ -203,7 +203,7 @@ public class FirstAlgorithm implements Algorithm {
         boolean runmin = true;
         int maxvalue = -1;
         for (int s = 0; s < 4; s++) {
-        	if(heartBroken == false && s == 2) continue;
+        	if(!heartBroken && s == 2) continue;
             for (Card c : cardsPlayed) {
                 if (c.getSuit() == s) cardsPlayedOfSuit++;
             }
@@ -214,14 +214,14 @@ public class FirstAlgorithm implements Algorithm {
             }
             for (int i = 0; i < myCards.size(); i++) {
             	VR = getValueRatio(myCards.get(i), cardsPlayed, myCards);
-                if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getRisk(myCards.get(i), maxCard) > getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < startingC) {
+                if (!this.cardPlayed[i] && myCards.get(i).getSuit() == s && getRisk(myCards.get(i), maxCard) > getRisk(myCards.get(cardplayed), maxCard) && getRisk(myCards.get(i), maxCard) < startingC) {
                     if (myCards.get(i).getValue() > maxvalue) {
                         cardplayed = i;
                         maxvalue = myCards.get(i).getValue();
                     }
                     runmin = false;
                 }
-                if (getRisk(myCards.get(i), maxCard) < getRisk(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
+                if (getRisk(myCards.get(i), maxCard) < getRisk(myCards.get(minrisk), maxCard) && !this.cardPlayed[i]) {
                     minrisk = i;
                 }
             }
@@ -405,19 +405,13 @@ public class FirstAlgorithm implements Algorithm {
 
     @Override
     public void setCoefficients(List<Double> coefficients) {
-
-        pointsInPlay = coefficients.get(0);
-        CpointsInPlay = coefficients.get(1);
-        Cpoints = coefficients.get(2);
-        POOS = coefficients.get(3);
-        CPOOS = coefficients.get(4);
-        cardsPlayedOfSuit = coefficients.get(5);
-        CcardsPlayedOfSuit = coefficients.get(6);
-        VR = coefficients.get(7);
-        CVR = coefficients.get(8);
-        playingC = coefficients.get(9);
-        startingC = coefficients.get(10);
-
+        CpointsInPlay = coefficients.get(0);
+        Cpoints = coefficients.get(1);
+        CPOOS = coefficients.get(2);
+        CcardsPlayedOfSuit = coefficients.get(3);
+        CVR = coefficients.get(4);
+        playingC = coefficients.get(5);
+        startingC = coefficients.get(6);
     }
 
 
@@ -447,7 +441,7 @@ public class FirstAlgorithm implements Algorithm {
 
     @Override
     public List<Double> getCoefficients() {
-        return Arrays.asList(pointsInPlay, CpointsInPlay, Cpoints, POOS, CPOOS, cardsPlayedOfSuit, CcardsPlayedOfSuit, VR, CVR, playingC, startingC);
+        return Arrays.asList(CpointsInPlay, Cpoints, CPOOS, CcardsPlayedOfSuit, CVR, playingC, startingC);
     }
 
 
