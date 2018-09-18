@@ -2,5 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="heart/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/MarkusTuomi/Downloads/libs/commons/collections/commons-collections4-4.1/commons-collections4-4.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="/Users/MarkusTuomi/Downloads/libs/commons/collections/commons-collections4-4.1/commons-collections4-4.1.jar"/>
 	<classpathentry kind="output" path="heart/out/production/heart"/>
 </classpath>

@@ -136,9 +136,26 @@ public class FirstAlgorithm implements Algorithm {
         return null;
     }
 
+    private int getFirstCardOfSuit(char suit){
+    	if (suit == ' '){
+    		for(int i = 0; i < 13; i++){
+        		if(cardPlayed[i] == false){
+        			return i;
+        		}
+        	}
+    	}
+    	
+    	for(int i = 0; i < 13; i++){
+    		if(myCards.get(i).getSuit() == suit && cardPlayed[i] == false){
+    			return i;
+    		}
+    	}
+    	return -1;
+    }
+    
     private int playcard_havesuit(List<Card> currentlyOnTable) {
         int cardplayed = 0;
-        int minrisk = 0;
+        int minrisk = getFirstCardOfSuit(currentlyOnTable.get(0).getSuit());
         boolean runmin = true;
         int maxCard = maxCardOfSuit(currentlyOnTable);
         for (int i = 0; i < myCards.size(); i++) {
@@ -177,7 +194,7 @@ public class FirstAlgorithm implements Algorithm {
     private int playcard_starting() {
         int cardplayed = 0;
         int maxCard = -1;
-        int minrisk = 0;
+        int minrisk = getFirstCardOfSuit(' ');
         boolean runmin = true;
         for (int s = 0; s < 4; s++) {
             for (Card c : cardsPlayed) {
@@ -185,8 +202,8 @@ public class FirstAlgorithm implements Algorithm {
             }
 
             for (int i = id + 1; i < starting; i++, i %= 4) {
-                System.out.println(getSuitNumber(s));
-                if (suitsEmpty[i][getSuitNumber(s)]) POOS++;
+                
+                if (suitsEmpty[i][s]) POOS++;
             }
             for (int i = 0; i < myCards.size(); i++) {
                 if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
@@ -199,7 +216,10 @@ public class FirstAlgorithm implements Algorithm {
             }
 
         }
-        if (runmin) return minrisk;
+        if (runmin) {
+        	System.out.println(minrisk);
+        	return minrisk;
+        }
         return cardplayed;
     }
 
