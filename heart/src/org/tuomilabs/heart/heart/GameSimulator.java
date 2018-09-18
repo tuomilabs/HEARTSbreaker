@@ -30,12 +30,17 @@ public class GameSimulator {
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
+
+
+        for (int i = 0; i < 4; i++) {
+            algorithms.get(i).setCoefficients(randomCoefficients());
+        }
     }
 
     GameSimulator(Class algorithmType, boolean displayGame) {
         this.algorithmType = algorithmType;
         this.algorithms = new ArrayList<>();
-        this.displayGame = true;
+        this.displayGame = displayGame;
 
         points = new HashMap<>();
         points.put(0, 0);
@@ -50,14 +55,39 @@ public class GameSimulator {
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
 
-    public void playGame() {
+
         for (int i = 0; i < 4; i++) {
             algorithms.get(i).setCoefficients(randomCoefficients());
         }
+    }
+
+    GameSimulator(Class algorithmType, List<List<Double>> coefficients, boolean displayGame) {
+        this.algorithmType = algorithmType;
+        this.algorithms = new ArrayList<>();
+        this.displayGame = displayGame;
+
+        points = new HashMap<>();
+        points.put(0, 0);
+        points.put(1, 0);
+        points.put(2, 0);
+        points.put(3, 0);
+
+        try {
+            for (int i = 0; i < 4; i++) {
+                algorithms.add((Algorithm) this.algorithmType.newInstance());
+            }
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
 
+        for (int i = 0; i < 4; i++) {
+            algorithms.get(i).setCoefficients(coefficients.get(i));
+        }
+    }
+
+    public void playGame() {
         Map<Integer, List<Card>> takenCards = new HashMap<>();
         takenCards.put(0, new ArrayList<>());
         takenCards.put(1, new ArrayList<>());
@@ -103,7 +133,9 @@ public class GameSimulator {
                 Card playedCard = algorithms.get(currentPlayer).playCard(currentCardsOnTable);
                 cardsPlayed++;
 
-                System.out.println("Player " + currentPlayer + " just played a " + playedCard + "");
+                if (displayGame) {
+                    System.out.println("Player " + currentPlayer + " just played a " + playedCard + "");
+                }
 
                 // Add the played card to the cards on the table
                 currentCardsOnTable.add(playedCard);
@@ -149,13 +181,26 @@ public class GameSimulator {
 
 
         assert points.get(0) + points.get(1) + points.get(2) + points.get(3) == 26;
+    }
 
+    void printScores() {
         System.out.println("");
         System.out.println("");
         System.out.println("Player 0 points: " + points.get(0));
         System.out.println("Player 1 points: " + points.get(1));
         System.out.println("Player 2 points: " + points.get(2));
         System.out.println("Player 3 points: " + points.get(3));
+    }
+
+    List<Integer> getScores() {
+        List<Integer> scores = new ArrayList<>();
+
+        scores.add(points.get(0));
+        scores.add(points.get(1));
+        scores.add(points.get(2));
+        scores.add(points.get(3));
+
+        return scores;
     }
 
     private List<Double> randomCoefficients() {
@@ -199,5 +244,19 @@ public class GameSimulator {
         }
 
         return bestCoefficients;
+    }
+
+    int getBestAlgorithm() {
+        int bestPoints = points.get(0);
+        int bestAlgorithm = 0;
+
+        for (int i = 0; i < algorithms.size(); i++) {
+            if (points.get(i) < bestPoints) {
+                bestPoints = points.get(i);
+                bestAlgorithm = i;
+            }
+        }
+
+        return bestAlgorithm;
     }
 }

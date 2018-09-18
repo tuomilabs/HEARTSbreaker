@@ -9,8 +9,12 @@ public class Main {
 
     private void run() {
         // Initialize the GameSimulator
-        GameSimulator at = new GameSimulator(FirstAlgorithm.class, true);
+//        GameSimulator at = new GameSimulator(FirstAlgorithm.class, true);
 
-        at.playGame();
+//        at.playGame();
+
+        AlgorithmTrainer at = new AlgorithmTrainer();
+
+        at.trainAlgorithms();
     }
 }
