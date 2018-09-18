@@ -80,7 +80,7 @@ public class GameSimulator {
             algorithms.get(i).dealCards(eachPlayerCards.get(i));
 
             if (displayGame) {
-                System.out.println("Player " + i + " just got the cards: " + eachPlayerCards.get(i) + "");
+                System.out.println("Player " + i + " just got the cards: " + Game.sortCards(eachPlayerCards.get(i)) + "");
             }
         }
 

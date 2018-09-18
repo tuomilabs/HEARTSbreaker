@@ -1,6 +1,8 @@
 package org.tuomilabs.heart.heart;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Game {
@@ -57,5 +59,19 @@ public class Game {
         } else {
             return 0;
         }
+    }
+
+    public static List<Card> sortCards(List<Card> cardsOrig) {
+        List<Card> cards = new ArrayList<>(cardsOrig);
+
+        Collections.sort(cards, (s1, s2) -> {
+            if (s1.getSuit() != s2.getSuit()) {
+                return s1.getSuit() - s2.getSuit();
+            } else {
+                return s1.getValue() - s2.getValue();
+            }
+        });
+
+        return cards;
     }
 }
