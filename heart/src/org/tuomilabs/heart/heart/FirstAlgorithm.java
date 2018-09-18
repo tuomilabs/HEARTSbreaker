@@ -158,10 +158,16 @@ public class FirstAlgorithm implements Algorithm {
         int minrisk = getFirstCardOfSuit(currentlyOnTable.get(0).getSuit());
         boolean runmin = true;
         int maxCard = maxCardOfSuit(currentlyOnTable);
+        
+        int maxvalue = -1;
+        
         for (int i = 0; i < myCards.size(); i++) {
-            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
-                cardplayed = i;
+            if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit() && getValue(myCards.get(i), maxCard) >= getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < playingC) {
                 runmin = false;
+                if(myCards.get(i).getValue() > maxvalue){
+                	cardplayed = i;
+                	maxvalue = myCards.get(i).getValue();
+                }
             }
             if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false && myCards.get(i).getSuit() == currentlyOnTable.get(0).getSuit()) {
                 minrisk = i;
@@ -177,9 +183,13 @@ public class FirstAlgorithm implements Algorithm {
         int minrisk = 0;
         int maxCard = -1;
         boolean runmin = true;
+        int maxvalue = -1;
         for (int i = 0; i < myCards.size(); i++) {
             if (this.cardPlayed[i] == false && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard)) {
-                cardplayed = i;
+            	if(myCards.get(i).getValue() > maxvalue){
+                	cardplayed = i;
+                	maxvalue = myCards.get(i).getValue();
+                }
                 runmin = false;
             }
             if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
@@ -196,6 +206,7 @@ public class FirstAlgorithm implements Algorithm {
         int maxCard = -1;
         int minrisk = getFirstCardOfSuit(' ');
         boolean runmin = true;
+        int maxvalue = -1;
         for (int s = 0; s < 4; s++) {
             for (Card c : cardsPlayed) {
                 if (c.getSuit() == s) cardsPlayedOfSuit++;
@@ -207,7 +218,10 @@ public class FirstAlgorithm implements Algorithm {
             }
             for (int i = 0; i < myCards.size(); i++) {
                 if (this.cardPlayed[i] == false && myCards.get(i).getSuit() == s && getValue(myCards.get(i), maxCard) > getValue(myCards.get(cardplayed), maxCard) && getValue(myCards.get(i), maxCard) < startingC) {
-                    cardplayed = i;
+                	if(myCards.get(i).getValue() > maxvalue){
+                    	cardplayed = i;
+                    	maxvalue = myCards.get(i).getValue();
+                    }
                     runmin = false;
                 }
                 if (getValue(myCards.get(i), maxCard) < getValue(myCards.get(minrisk), maxCard) && this.cardPlayed[i] == false) {
