@@ -17,5 +17,8 @@
     <orderEntry type="library" name="Filters" level="project" />
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="library" name="apidocs" level="project" />
+    <orderEntry type="library" name="bluecove-2.1.1" level="project" />
+    <orderEntry type="library" name="jcommon-1.0.15" level="project" />
+    <orderEntry type="library" name="RXTXcomm" level="project" />
   </component>
 </module>
